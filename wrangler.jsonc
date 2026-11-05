@@ -1,0 +1,9 @@
+// Cloudflare deploys this repo as a Worker that serves the static site in ./site.
+// The name must match the project name in the Cloudflare dashboard.
+{
+  "name": "teddy-thie",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./site"
+  }
+}

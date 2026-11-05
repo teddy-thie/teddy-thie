@@ -1349,6 +1349,7 @@
      data-rise-kids   each child rises in turn, N ms apart
      data-clip-kids   each child unclips from the bottom, N ms apart
      data-delay       extra wait, used only in the first moment after load so the hero plays as a sequence
+     data-wait        extra wait every time, e.g. the right-hand card of a row
      data-stagger     ms between words of a split element
      Everything plays once, when it first scrolls into view. */
   function initReveal() {
@@ -1391,7 +1392,7 @@
     }
 
     function play(el) {
-      var base = Date.now() - t0 < 1200 ? Number(el.getAttribute('data-delay')) || 0 : 0;
+      var base = (Date.now() - t0 < 1200 ? Number(el.getAttribute('data-delay')) || 0 : 0) + (Number(el.getAttribute('data-wait')) || 0);
       var step = Number(el.getAttribute('data-rise-kids') || el.getAttribute('data-clip-kids'));
       var targets = step ? Array.prototype.slice.call(el.children) : [el];
       void el.offsetWidth; // settle the hidden state first so the change animates

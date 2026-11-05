@@ -25,6 +25,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <link rel="stylesheet" href="css/site.css">
 <script src="js/site.js" defer></script>
+<script>/* Hide reveal targets until js/site.js sets them up; show everything after 3s if it never does. */
+(function (d) { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; d.classList.add('rv'); setTimeout(function () { if (!d.classList.contains('rv-on')) d.classList.remove('rv'); }, 3000); })(document.documentElement);</script>
 </head>
 <body>
 <a class="skip-link" href="#work">Skip to work</a>
@@ -43,8 +45,8 @@
 
   <div class="hero-home__grid">
     <div class="hero-home__copy">
-      <h1 class="hello">Hello, I'm <span class="accent">Ted Thie</span><span class="sr-only">. I design products for high-stakes decisions.</span>
-        <span class="rotator" data-rotator aria-hidden="true">
+      <h1 class="hello"><span data-split data-delay="100" data-stagger="90">Hello, I'm <span class="accent">Ted Thie</span></span><span class="sr-only">. I design products for high-stakes decisions.</span>
+        <span class="rotator" data-rotator aria-hidden="true" data-rise data-delay="560">
           <span class="rotator__line is-current">I design products for <span class="accent">high-stakes</span> decisions.</span>
           <span class="rotator__line">I play <span class="accent">table tennis</span> at an elite level.</span>
           <span class="rotator__line">I turn <span class="accent">dense data</span> into calm screens.</span>
@@ -55,14 +57,14 @@
         </span>
       </h1>
       <div class="intro">
-        <span class="label">Nice to meet you</span>
-        <p>I'm a product designer who codes. For 7 years I've designed data-dense products where the stakes are real: trading simulations, hospital patient care, credit scoring and hiring analytics.</p>
+        <span class="label" data-split data-delay="640" data-stagger="40">Nice to meet you</span>
+        <p data-split data-delay="680" data-stagger="10">I'm a product designer who codes. For 7 years I've designed data-dense products where the stakes are real: trading simulations, hospital patient care, credit scoring and hiring analytics.</p>
       </div>
     </div>
-    <img class="avatar" src="assets/tt-avatar.svg" alt="Illustrated avatar of Ted Thie" width="440" height="440">
+    <div class="avatar-wrap" data-rise="pop" data-delay="250"><img class="avatar" src="assets/tt-avatar.svg" alt="Illustrated avatar of Ted Thie" width="440" height="440"></div>
   </div>
 
-  <dl class="hero-facts">
+  <dl class="hero-facts" data-rise-kids="90" data-delay="980">
     <div><dt>Currently</dt><dd>Open to remote product design roles</dd></div>
     <div><dt>Previously at</dt><dd>AmplifyME, Palladium, Elgia &amp; Revolution Analytics</dd></div>
     <div><dt>Say hello</dt><dd class="links"><a href="mailto:ted.thie@outlook.com">Email</a><a href="https://www.linkedin.com/in/ted-thie/" target="_blank" rel="noopener">LinkedIn ↗</a></dd></div>
@@ -71,12 +73,12 @@
 
 <main id="work" class="band work" tabindex="-1">
   <div class="work__head">
-    <h2>Selected <span class="accent">work</span></h2>
-    <span class="work__count">08 projects · 2019 — 2026</span>
+    <h2 data-split data-stagger="90">Selected <span class="accent">work</span></h2>
+    <span class="work__count" data-split data-stagger="25" data-wait="150">08 projects · 2019 — 2026</span>
   </div>
 
   <div class="work-grid">
-    <a class="work-card" href="forecasting.html" data-cursor="Unlock" data-cursor-kind="locked">
+    <a class="work-card" data-rise href="forecasting.html" data-cursor="Unlock" data-cursor-kind="locked">
       <div class="work-card__media"><img src="assets/work/forecasting.webp" alt="The forecasting tournament home screen in dark and light mode" width="1600" height="1050" loading="lazy"></div>
       <div class="work-card__body">
         <span class="work-card__n" aria-hidden="true">01</span>
@@ -88,7 +90,7 @@
       </div>
     </a>
 
-    <a class="work-card" href="ten-brands.html" data-cursor="Unlock" data-cursor-kind="locked">
+    <a class="work-card" data-rise data-wait="120" href="ten-brands.html" data-cursor="Unlock" data-cursor-kind="locked">
       <div class="work-card__media"><img src="assets/work/ten-brands.webp" alt="One game screen in several brand themes" width="1600" height="1050" loading="lazy"></div>
       <div class="work-card__body">
         <span class="work-card__n" aria-hidden="true">02</span>
@@ -100,7 +102,7 @@
       </div>
     </a>
 
-    <a class="work-card" href="pulse.html" data-cursor="Unlock" data-cursor-kind="locked">
+    <a class="work-card" data-rise href="pulse.html" data-cursor="Unlock" data-cursor-kind="locked">
       <div class="work-card__media"><img src="assets/work/jasiri-pulse.webp" alt="Three Jasiri Pulse screens: a game invite, the You're in confirmation and a venue's courts" width="1600" height="1050" loading="lazy"></div>
       <div class="work-card__body">
         <span class="work-card__n" aria-hidden="true">03</span>
@@ -112,7 +114,7 @@
       </div>
     </a>
 
-    <a class="work-card" href="kenyaemr.html" data-cursor="View ↗">
+    <a class="work-card" data-rise data-wait="120" href="kenyaemr.html" data-cursor="View ↗">
       <div class="work-card__media"><img src="assets/work/kenyaemr.webp" alt="KenyaEMR Payment desk with a patient's bill and four ways to pay" width="1600" height="1050" loading="lazy"></div>
       <div class="work-card__body">
         <span class="work-card__n" aria-hidden="true">04</span>
@@ -124,7 +126,7 @@
       </div>
     </a>
 
-    <a class="work-card" href="alinkeo.html" data-cursor="View ↗">
+    <a class="work-card" data-rise href="alinkeo.html" data-cursor="View ↗">
       <div class="work-card__media"><img src="assets/work/alinkeo.webp" alt="Alinkeo course player with the interactive transcript beside the video" width="1600" height="1050" loading="lazy"></div>
       <div class="work-card__body">
         <span class="work-card__n" aria-hidden="true">05</span>
@@ -136,7 +138,7 @@
       </div>
     </a>
 
-    <a class="work-card" href="trading-sim.html" data-cursor="Unlock" data-cursor-kind="locked">
+    <a class="work-card" data-rise data-wait="120" href="trading-sim.html" data-cursor="Unlock" data-cursor-kind="locked">
       <div class="work-card__media"><img src="assets/work/trading-sim.webp" alt="The old trade screen behind the redesigned one" width="1600" height="1050" loading="lazy"></div>
       <div class="work-card__body">
         <span class="work-card__n" aria-hidden="true">06</span>
@@ -148,7 +150,7 @@
       </div>
     </a>
 
-    <a class="work-card" href="hiring.html" data-cursor="Unlock" data-cursor-kind="locked">
+    <a class="work-card" data-rise href="hiring.html" data-cursor="Unlock" data-cursor-kind="locked">
       <div class="work-card__media"><img src="assets/work/hiring.webp" alt="A hiring campaign overview: the cohort’s simulations and fit profile" width="1600" height="1050" loading="lazy"></div>
       <div class="work-card__body">
         <span class="work-card__n" aria-hidden="true">07</span>
@@ -160,7 +162,7 @@
       </div>
     </a>
 
-    <a class="work-card" href="nishauri.html" data-cursor="View ↗">
+    <a class="work-card" data-rise data-wait="120" href="nishauri.html" data-cursor="View ↗">
       <div class="work-card__media"><img src="assets/work/nishauri.webp" alt="Three Nishauri screens: rescheduling an appointment, the home screen and a blood pressure check" width="1600" height="1050" loading="lazy"></div>
       <div class="work-card__body">
         <span class="work-card__n" aria-hidden="true">08</span>
@@ -178,7 +180,7 @@
   <div class="site-footer__cta">
     <div class="site-footer__sign">
       <img class="footer-mark" src="assets/logo/tt-primary-animated-colour-on-dark.svg" alt="" width="233" height="81" loading="lazy">
-      <h2>Have a high-stakes<br>product? <span class="accent">Let's talk.</span></h2>
+      <h2 data-split data-stagger="60">Have a high-stakes<br>product? <span class="accent">Let's talk.</span></h2>
     </div>
     <a class="pill-button" href="mailto:ted.thie@outlook.com">ted.thie@outlook.com</a>
   </div>

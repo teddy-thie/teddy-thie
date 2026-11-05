@@ -46,13 +46,13 @@ Opening `site/index.html` straight from disk also works, but the avatar's eyes o
 
 ## The password
 
-All five locked pages (forecasting, ten-brands, hiring, trading-sim, pulse) use the same password, so one unlock opens them all for the rest of the browser session. It's the one printed on your CV; it isn't stored anywhere in this folder. To change it, re-encrypt every locked case study with the new one:
+All five locked pages (forecasting, ten-brands, hiring, trading-sim, pulse) use the same password, so one unlock opens them all for the rest of the browser session. It isn't printed on your CV or stored anywhere in this folder; visitors email you for it. To change it, re-encrypt every locked case study with the new one:
 
 ```
 for n in forecasting ten-brands hiring trading-sim pulse; do node tools/encrypt-nda.mjs $n "new-password"; done
 ```
 
-Then update your CV.
+Then send the new one to anyone who asks.
 
 ## Your CV
 

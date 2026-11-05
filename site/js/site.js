@@ -1343,6 +1343,91 @@
     });
   }
 
+  /* ---------- Reveal (About): words rise out of masks, blocks rise, photos unclip ----------
+     data-split       split into words, each sliding up inside its own mask
+     data-rise        the element rises and fades in ("pop" also scales up)
+     data-rise-kids   each child rises in turn, N ms apart
+     data-clip-kids   each child unclips from the bottom, N ms apart
+     data-delay       extra wait, used only in the first moment after load so the hero plays as a sequence
+     data-stagger     ms between words of a split element
+     Everything plays once, when it first scrolls into view. */
+  function initReveal() {
+    var root = document.documentElement;
+    if (!root.classList.contains('rv')) return;
+    if (reduceMotion || !('IntersectionObserver' in window)) { root.classList.remove('rv'); return; }
+    root.classList.add('rv-on');
+    var t0 = Date.now();
+
+    function split(el) {
+      var label = el.textContent.replace(/\s+/g, ' ').trim();
+      var vis = document.createElement('span');
+      vis.setAttribute('aria-hidden', 'true');
+      while (el.firstChild) vis.appendChild(el.firstChild);
+      var i = 0;
+      (function walk(node) {
+        Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+          if (n.nodeType === 1) { walk(n); return; }
+          if (n.nodeType !== 3 || !n.nodeValue.trim()) return;
+          var frag = document.createDocumentFragment();
+          n.nodeValue.split(/(\s+)/).forEach(function (part) {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            var mask = document.createElement('span'), word = document.createElement('span');
+            mask.className = 'rv-w';
+            word.textContent = part;
+            word.style.setProperty('--i', i++);
+            mask.appendChild(word);
+            frag.appendChild(mask);
+          });
+          node.replaceChild(frag, n);
+        });
+      })(vis);
+      var sr = document.createElement('span');
+      sr.className = 'sr-only';
+      sr.textContent = label;
+      el.appendChild(sr);
+      el.appendChild(vis);
+      if (el.getAttribute('data-stagger')) el.style.setProperty('--rv-st', Number(el.getAttribute('data-stagger')) + 'ms');
+    }
+
+    function play(el) {
+      var base = Date.now() - t0 < 1200 ? Number(el.getAttribute('data-delay')) || 0 : 0;
+      var step = Number(el.getAttribute('data-rise-kids') || el.getAttribute('data-clip-kids'));
+      var targets = step ? Array.prototype.slice.call(el.children) : [el];
+      void el.offsetWidth; // settle the hidden state first so the change animates
+      targets.forEach(function (t, i) {
+        t.style.setProperty('--rv-d', (base + i * (step || 0)) + 'ms');
+        t.classList.add('is-in');
+      });
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        io.unobserve(en.target);
+        play(en.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px' });
+
+    // Apply the hidden starting state without a transition, or blocks already on screen would fade out first.
+    root.classList.add('rv-init');
+    var els = Array.prototype.slice.call(document.querySelectorAll('[data-split], [data-rise], [data-rise-kids], [data-clip-kids]'));
+    els.forEach(function (el) {
+      if (el.hasAttribute('data-split')) split(el);
+      if (el.hasAttribute('data-rise')) {
+        el.classList.add('rv-rise');
+        if (el.getAttribute('data-rise') === 'pop') el.classList.add('rv-rise--pop');
+      }
+      Array.prototype.forEach.call(el.hasAttribute('data-rise-kids') || el.hasAttribute('data-clip-kids') ? el.children : [], function (c) {
+        c.classList.add(el.hasAttribute('data-clip-kids') ? 'rv-clip' : 'rv-rise');
+      });
+      el.classList.add('rv-ready');
+    });
+    void root.offsetWidth;
+    root.classList.remove('rv-init');
+    els.forEach(function (el) { io.observe(el); });
+  }
+
   function boot() {
     initEyes();
     initCursor();
@@ -1359,6 +1444,7 @@
     initZoom();
     initGate();
     initBrandSwitcher(document);
+    initReveal();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

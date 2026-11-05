@@ -1,0 +1,17 @@
+# Security headers for every page and file on tedthie.cc.
+# Cloudflare reads this file when it deploys the site and applies the rules; the file itself is not served.
+#
+# Content-Security-Policy, in plain words:
+#   scripts   only from this site, plus Cloudflare Web Analytics
+#   styles    this site and Google Fonts; inline styles are allowed because the locked case studies use them
+#   fonts     Google Fonts
+#   images    this site, plus data: images (the locked case studies carry their images inside the encrypted page)
+#   no plugins, no other site may frame these pages, forms only post back here
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin

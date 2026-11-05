@@ -11,6 +11,7 @@
 -  **Hobbies :** Basketball :basketball: & Table Tennis 🏓
 -  **Fact :** Design is not a single object or dimension. Design is messy and complex  :heart:
 
+<a target="_blank" href="https://tedthie.cc"><img src="https://img.shields.io/badge/-Portfolio%20%C2%B7%20tedthie.cc-1D1A24?style=for-the-badge&logo=googlechrome&logoColor=white"></img></a>
 <a target="_blank" href="https://www.linkedin.com/in/ted-thie-149250132/"><img src="https://img.shields.io/badge/-LinkedIn-0077B5?style=for-the-badge&logo=Linkedin&logoColor=white"></img></a>
 <a target="_blank" href="https://medium.com/@teddy_thie"><img src="https://img.shields.io/badge/-Medium-12100E?style=for-the-badge&logo=Medium&logoColor=white"></img></a>
 

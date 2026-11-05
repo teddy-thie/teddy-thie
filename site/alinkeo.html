@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Learning, pinned to the moment · Alinkeo · Ted Thie</title>
+<meta name="description" content="Case study: Alinkeo, a video learning platform where notes, comments, questions and pins attach to the exact moment in a lesson's transcript.">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="assets/logo/tt-icon-colour.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/logo/tt-icon-colour-180.png">
+<meta name="theme-color" content="#0B0B0E">
+<link rel="canonical" href="https://tedthie.cc/alinkeo">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ted Thie">
+<meta property="og:title" content="Learning, pinned to the moment · Alinkeo · Ted Thie">
+<meta property="og:description" content="Case study: Alinkeo, a video learning platform where notes, comments, questions and pins attach to the exact moment in a lesson&#x27;s transcript.">
+<meta property="og:url" content="https://tedthie.cc/alinkeo">
+<meta property="og:image" content="https://tedthie.cc/assets/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ted Thie, product designer: calm screens for data-dense, high-stakes products">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="css/site.css">
+<script src="js/site.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<section class="band band--cobalt cs-hero">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Ted Thie, product designer. Home">
+      <img class="brand__logo" src="assets/logo/tt-primary-animated-colour-on-dark.svg" alt="" width="233" height="81">
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="index.html" aria-current="page">Work</a>
+      <a href="about.html">About</a>
+      <a href="resume.pdf">Resume ↗</a>
+    </nav>
+  </header>
+  <div class="cs-hero__grid">
+    <div class="cs-hero__title">
+      <span class="label">Case study · Alinkeo · 2022–23</span>
+      <h1>Learning, <span class="accent">pinned to the moment</span></h1>
+      <p class="cs-hero__sub">A video learning platform for Elgia, where every note, comment, question and pin attaches to a line of the lesson's transcript</p>
+    </div>
+    <dl class="cs-meta">
+      <div><dt>Role</dt><dd>Senior product designer, alongside junior designer Mutala Musau</dd></div>
+      <div><dt>Team</dt><dd>Jude Otenyo, lead developer<br>Mutala Musau, junior designer</dd></div>
+      <div class="cs-meta__pair"><div><dt>Timeline</dt><dd>2022–23</dd></div><div><dt>Platform</dt><dd>Web · desktop and mobile</dd></div></div>
+    </dl>
+  </div>
+</section>
+
+<main id="main" tabindex="-1">
+  <div class="cs-shot">
+    <figure>
+      <div class="hero-shots hero-shots--wide">
+        <div class="screen" data-zoom><img src="assets/alinkeo/player.webp" alt="The course player: a lesson video with note, pin and speed controls in the player bar, and the transcript open in a side panel with a search field" width="1920" height="1080"></div>
+        <div class="phone hero-shots__phone" data-zoom><img src="assets/alinkeo/m-transcript.webp" alt="The same lesson on a phone: the transcript searched for 'components', a passage selected and a menu to take a note, comment, ask a question or drop a pin at 4:20 to 5:10" width="780" height="1688"></div>
+      </div>
+      <figcaption class="fine">THE COURSE PLAYER ON DESKTOP AND MOBILE · ALL LEARNERS AND INSTRUCTORS FICTIONAL</figcaption>
+    </figure>
+  </div>
+
+  <section class="band overview split" aria-labelledby="overview-label">
+    <span class="label label--cobalt" id="overview-label">Overview</span>
+    <div class="overview__body">
+      <p class="overview__lede">Alinkeo is a learning platform: courses built from video lessons, made to get knowledge to a specific group of people: military veterans. Authors upload a video and get a transcript with it, from human transcription or speech recognition. As senior designer, working with junior designer Mutala Musau, I designed the course player learners study in and the tools inside it.</p>
+      <div class="card-grid">
+        <div class="card"><span class="label label--sub">Problem</span><p>Lessons are long videos. A video is hard to search, hard to skim and hard to come back to, and the questions a learner has are about one moment in it, not the whole lesson.</p></div>
+        <div class="card card--outcome"><span class="label label--cobalt">Outcome</span><p>A course player built around the transcript: search it, jump from any line, and attach a note, comment, question or pin to the exact moment it's about.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="In numbers">
+    <div class="stat"><span class="stat__n">4</span><span class="stat__label">ways to mark a moment: note, comment, question, pin</span></div>
+    <div class="stat"><span class="stat__n">2</span><span class="stat__label">sides to the product: learners in the player, authors in the editor</span></div>
+    <div class="stat"><span class="stat__n">1</span><span class="stat__label">transcript that every tool anchors to</span></div>
+  </section>
+
+  <section class="band section split">
+    <h2 class="h-section">The challenge<br><span class="accent">a video is hard to come back to</span></h2>
+    <div class="prose">
+      <p>A lesson can run past 20 minutes. Learners want to find the part where a term came up, keep a thought for later, or ask about the bit they didn't follow.</p>
+      <p>In a plain video player all of that happens somewhere else: a notebook, a forum, or scrubbing back and forth along the timeline. The work was to bring it into the player and tie it to the moment it's about.</p>
+    </div>
+  </section>
+
+  <section class="band section section--tight-top stack">
+    <div class="split ruled">
+      <h2 class="h-section">Two passes<br><span class="accent">from tabs to a reading panel</span></h2>
+      <div class="prose">
+        <p>The first pass put every tool in the side panel's tabs, with small text buttons in the player bar: Display Feedback Type and Drop A Pin.</p>
+        <p>The refined player gives the transcript room to be read. The side panel opens on it with search at the top, and note and pin sit in the player bar as icons beside speed, picture-in-picture and accessibility.</p>
+      </div>
+    </div>
+    <div class="shots-2">
+      <figure class="shot">
+        <span class="screen-tag">Before · first pass</span>
+        <div class="screen" data-zoom><img src="assets/alinkeo/before.webp" alt="First pass: a lesson video with text buttons in the player bar, and a side panel of five small tabs showing the course's lessons" width="1920" height="1080" loading="lazy"></div>
+        <figcaption>Five small tabs in the side panel, eight more under the video, and tools as text buttons.</figcaption>
+      </figure>
+      <figure class="shot">
+        <span class="screen-tag screen-tag--after">After · the refined player</span>
+        <div class="screen screen--after" data-zoom><img src="assets/alinkeo/player.webp" alt="Refined player: note and pin icons in the player bar, and the side panel open on a searchable transcript" width="1920" height="1080" loading="lazy"></div>
+        <figcaption>The transcript in its own readable panel, with note and pin one tap away in the player bar.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band section section--tight-top stack">
+    <div class="split">
+      <h2 class="h-section">Try it<br><span class="accent">mark a moment</span></h2>
+      <div class="prose"><p>A working stand-in for the player. Search the transcript, click any line to jump there, then take a note, comment, ask a question or drop a pin on it. Everything you save takes you back to its moment.</p></div>
+    </div>
+    <div class="demo" data-lesson>
+      <div class="lesson">
+        <div class="lesson__left">
+          <div class="lp">
+            <span class="lp__label">Lesson 1 · Panels in your forms</span>
+            <p class="lp__now" data-now>In today's training, we're going to go through the component panels.</p>
+            <div class="lp__track" data-track>
+              <div class="lp__fill" data-fill></div>
+              <div class="lp__marks" data-marks aria-hidden="true"></div>
+            </div>
+            <div class="lp__bar">
+              <button type="button" class="lp__play" data-play aria-label="Play">▶</button>
+              <span class="lp__time"><span data-time>00:00</span> / 20:40</span>
+            </div>
+          </div>
+          <div class="moments">
+            <div class="moments__head"><span class="label label--sub">Your moments</span><span class="moments__count" data-count>2</span></div>
+            <ul class="moments__list" data-moments></ul>
+          </div>
+        </div>
+        <div class="tx">
+          <div class="tx__search">
+            <label class="sr-only" for="tx-q">Search the transcript</label>
+            <input id="tx-q" type="search" placeholder="Search the transcript" autocomplete="off" data-q>
+            <span class="tx__count" data-hits aria-live="polite">Try "panel"</span>
+            <button type="button" class="tx__step" data-hit-prev aria-label="Previous match">↑</button>
+            <button type="button" class="tx__step" data-hit-next aria-label="Next match">↓</button>
+          </div>
+          <div class="tx__lines" data-lines></div>
+          <span class="tx__note">A stand-in for the real transcript panel. Lines follow the lesson in the screens.</span>
+        </div>
+      </div>
+      <p class="sr-only" aria-live="polite" data-say></p>
+    </div>
+  </section>
+
+  <section class="band section stack">
+    <div class="split">
+      <h2 class="h-section">The design<br><span class="accent">three decisions</span></h2>
+      <div class="prose"><p>Each one moves something learners did outside the video into the player, and ties it to a time in the lesson.</p></div>
+    </div>
+    <div class="decision-grid">
+      <article class="decision">
+        <figure class="decision__shot" data-zoom><img src="assets/alinkeo/d-transcript.webp" alt="Detail: the side panel open on the transcript, with a Search Transcript field above it" width="676" height="380" loading="lazy"></figure>
+        <div class="decision__head"><span class="power__n" aria-hidden="true">01</span><h3>The transcript is the way in</h3></div>
+        <dl>
+          <div><dt class="is-chose">CHOSE</dt><dd class="is-chose">A searchable transcript beside the video, where any line jumps the video to that moment.</dd></div>
+          <div><dt>INSTEAD OF</dt><dd>The timeline as the only way to find a part of the lesson.</dd></div>
+          <div><dt>WHY</dt><dd>Words are faster to scan than a scrubber. Search finds every mention of a term and steps through them, "2 of 10".</dd></div>
+        </dl>
+      </article>
+      <article class="decision">
+        <figure class="decision__shot" data-zoom><img src="assets/alinkeo/d-mark.webp" alt="Detail on mobile: a selected passage and a menu stamped 4:20 to 5:10 with Take a note, Make a comment, Ask a question and Drop a pin" width="780" height="439" loading="lazy"></figure>
+        <div class="decision__head"><span class="power__n" aria-hidden="true">02</span><h3>Mark the moment, not the video</h3></div>
+        <dl>
+          <div><dt class="is-chose">CHOSE</dt><dd class="is-chose">Select a passage and attach a note, comment, question or pin to its time stamp, such as 4:20 to 5:10.</dd></div>
+          <div><dt>INSTEAD OF</dt><dd>Notes and comments about the lesson as a whole.</dd></div>
+          <div><dt>WHY</dt><dd>Anything a learner saves can take them back to the second it's about. One menu, four choices, wherever the passage is.</dd></div>
+        </dl>
+      </article>
+      <article class="decision">
+        <figure class="decision__shot" data-zoom><img src="assets/alinkeo/d-qa.webp" alt="Detail: a learner's question with a date, a time and a Play button, and the instructor's reply beneath it" width="598" height="296" loading="lazy"></figure>
+        <div class="decision__head"><span class="power__n" aria-hidden="true">03</span><h3>Questions keep their moment</h3></div>
+        <dl>
+          <div><dt class="is-chose">CHOSE</dt><dd class="is-chose">Q&amp;A threads tied to a time in the lesson, with Play to rewatch it and the instructor's replies underneath.</dd></div>
+          <div><dt>INSTEAD OF</dt><dd>A general comments list under the course.</dd></div>
+          <div><dt>WHY</dt><dd>The instructor answering sees exactly what was asked about, and the next learner stuck on the same part finds the answer there.</dd></div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="band band--night section stack">
+    <div class="split">
+      <h2 class="h-section">The model<br><span class="accent">one line, many layers</span></h2>
+      <div class="prose"><p>Every tool in the player hangs off the same thing: a time range in the transcript. That's what lets a note, a question or a pin take you back.</p></div>
+    </div>
+    <div class="system-row">
+      <div class="system-box"><span class="label">01 · Transcript</span><span class="system-box__title">What was said</span><span class="system-box__text">Generated with the video, by human transcription or speech recognition</span></div>
+      <div class="system-arrow" aria-hidden="true">→</div>
+      <div class="system-box system-box--key"><span class="label">02 · Moment</span><span class="system-box__title">When it was said</span><span class="system-box__text">A passage and its time stamp, such as 4:20 to 5:10</span></div>
+      <div class="system-arrow" aria-hidden="true">→</div>
+      <div class="system-box"><span class="label">03 · Layer</span><span class="system-box__title">What you add</span><span class="system-box__text">A note, comment, question or pin, each one a way back to the moment</span></div>
+    </div>
+  </section>
+
+  <section class="band section stack">
+    <div class="split ruled">
+      <h2 class="h-section">For course authors<br><span class="accent">the same transcript, cut into clips</span></h2>
+      <div class="prose">
+        <p>Authors upload a video or record one. In the editor, they select part of the transcript to make a clip, loop a section while they work on it, and add interactions along the timeline.</p>
+        <p>The transcript learners read is the one authors edit with, so a moment means the same thing on both sides.</p>
+      </div>
+    </div>
+    <figure class="shot">
+      <div class="screen" data-zoom><img src="assets/alinkeo/editor.webp" alt="The editor: transcript clips on the left, the video with interaction markers on its timeline and the transcript with a Loop Section switch in the middle, and features and media on the right" width="1920" height="1080" loading="lazy"></div>
+      <figcaption>Transcript clips on the left, the video and its transcript in the middle, features and media on the right.</figcaption>
+    </figure>
+  </section>
+
+  <section class="band section section--tight-top stack journey journey--app" data-journey>
+    <div class="split ruled">
+      <h2 class="h-section">A lesson<br><span class="accent">start to finish</span></h2>
+      <div class="prose"><p>Follow a learner through one lesson: watch with the transcript, pin a moment, and find what they saved.</p></div>
+    </div>
+    <div class="chips" role="group" aria-label="Steps in a lesson">
+      <button type="button" class="chip" data-step aria-pressed="true" data-img="assets/alinkeo/player.webp" data-alt="The course player with the transcript open beside the video" data-title="Watch and read" data-text="The transcript runs beside the video, with search at the top."><span class="chip__num">1</span>Watch</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/alinkeo/add-pin.webp" data-alt="The Add a Pin dialog over the player, with a custom label field and a Done button" data-title="Pin a moment" data-text="The pin icon in the player bar drops a pin at the current time, with a label of your own."><span class="chip__num">2</span>Pin</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/alinkeo/pins.webp" data-alt="The Pins tab listing two pins with their titles and the dates they were added" data-title="Your pins" data-text="Pins collect in their own tab, each with a title and the date it was added."><span class="chip__num">3</span>Pins</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/alinkeo/notes.webp" data-alt="The Notes tab with a written summary, a linked passage and an Edit Notes button" data-title="Your notes" data-text="Notes build into a summary of the lesson, with passages linked back to the transcript."><span class="chip__num">4</span>Notes</button>
+    </div>
+    <figure>
+      <div class="screen" data-zoom><img data-step-img src="assets/alinkeo/player.webp" alt="The course player with the transcript open beside the video" width="1920" height="1080" loading="lazy"></div>
+      <figcaption>
+        <span class="journey__caption" aria-live="polite"><span class="journey__n" data-step-n>01</span><span><span class="journey__title" data-step-title>Watch and read</span><span class="journey__text" data-step-text>The transcript runs beside the video, with search at the top.</span></span></span>
+        <span class="journey__nav">
+          <button type="button" class="round-btn" data-step-prev aria-label="Previous step">← Back</button>
+          <button type="button" class="round-btn round-btn--primary" data-step-next aria-label="Next step">Next →</button>
+        </span>
+      </figcaption>
+    </figure>
+    <span class="fine">ALL LEARNERS AND INSTRUCTORS FICTIONAL</span>
+  </section>
+
+  <section class="band outcome split">
+    <h2 class="h-section">Outcome<br><span class="accent">what changed</span></h2>
+    <ul>
+      <li>A course player where the transcript is the way into every lesson, on desktop and mobile.</li>
+      <li>Notes, comments, questions and pins all attach to a moment, and all lead back to it.</li>
+      <li>Authors cut clips and build interactions from the same transcript learners read.</li>
+      <li>Shipped, for the veterans taking its courses.</li>
+    </ul>
+  </section>
+
+  <section class="band section split">
+    <h2 class="h-section">Next time<br><span class="accent">what I'd do differently</span></h2>
+    <div class="numbered">
+      <div class="numbered__item"><span class="numbered__n" aria-hidden="true">01</span><div><h3>Measure which tools get used</h3><p>Four ways to mark a moment is a lot. Usage per tool would show which ones earn a place up front and which can sit a tap further away.</p></div></div>
+      <div class="numbered__item"><span class="numbered__n" aria-hidden="true">02</span><div><h3>Open with fewer tabs</h3><p>The refined player still opens with ten tabs across the side panel and below the video. I'd start with Transcript and Lessons and let learners add the rest with the + button.</p></div></div>
+    </div>
+  </section>
+
+  <section class="band next">
+    <a href="trading-sim.html" data-cursor="Next ↗">
+      <span class="next__text"><span class="label label--cobalt">Next project · 06 · NDA</span><span class="next__title">Trading <span class="accent">simulator</span> →</span></span>
+      <img src="assets/work/trading-sim.webp" alt="" width="1600" height="1050" loading="lazy">
+    </a>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__cta">
+    <div class="site-footer__sign">
+      <img class="footer-mark" src="assets/logo/tt-primary-animated-colour-on-dark.svg" alt="" width="233" height="81" loading="lazy">
+      <h2>Have a high-stakes<br>product? <span class="accent">Let's talk.</span></h2>
+    </div>
+    <a class="pill-button" href="mailto:ted.thie@outlook.com">ted.thie@outlook.com</a>
+  </div>
+  <div class="site-footer__base"><span>© 2026 · Built between table tennis rallies 🏓, layered like a good lasagna 🍝</span><a href="https://www.linkedin.com/in/ted-thie/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+</footer>
+</body>
+</html>

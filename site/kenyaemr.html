@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Every way to pay · KenyaEMR · Ted Thie</title>
+<meta name="description" content="Case study: hospital billing for KenyaEMR, built from scratch, field-tested in 7 facilities and adopted by OpenMRS as its standard billing design.">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="assets/logo/tt-icon-colour.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/logo/tt-icon-colour-180.png">
+<meta name="theme-color" content="#0B0B0E">
+<link rel="canonical" href="https://tedthie.cc/kenyaemr">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ted Thie">
+<meta property="og:title" content="Every way to pay · KenyaEMR · Ted Thie">
+<meta property="og:description" content="Case study: hospital billing for KenyaEMR, built from scratch, field-tested in 7 facilities and adopted by OpenMRS as its standard billing design.">
+<meta property="og:url" content="https://tedthie.cc/kenyaemr">
+<meta property="og:image" content="https://tedthie.cc/assets/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ted Thie, product designer: calm screens for data-dense, high-stakes products">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="css/site.css">
+<script src="js/site.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<section class="band band--cobalt cs-hero">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Ted Thie, product designer. Home">
+      <img class="brand__logo" src="assets/logo/tt-primary-animated-colour-on-dark.svg" alt="" width="233" height="81">
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="index.html" aria-current="page">Work</a>
+      <a href="about.html">About</a>
+      <a href="resume.pdf">Resume ↗</a>
+    </nav>
+  </header>
+  <div class="cs-hero__grid">
+    <div class="cs-hero__title">
+      <span class="label">Case study · KenyaEMR · 2023–24</span>
+      <h1>Every way to pay, <span class="accent">including not paying</span></h1>
+      <p class="cs-hero__sub">Hospital billing for KenyaEMR, built from scratch, field-tested in 7 facilities and adopted by OpenMRS as its standard billing design</p>
+    </div>
+    <dl class="cs-meta">
+      <div><dt>Role</dt><dd>UI/UX specialist at Palladium: designed billing from scratch, helped design the inpatient module</dd></div>
+      <div><dt>Team</dt><dd>Donald Kipkorir, senior back-end developer</dd></div>
+      <div class="cs-meta__pair"><div><dt>Timeline</dt><dd>2023–24</dd></div><div><dt>Platform</dt><dd>Web · OpenMRS 3</dd></div></div>
+    </dl>
+  </div>
+</section>
+
+<main id="main" tabindex="-1">
+  <div class="cs-shot">
+    <figure>
+      <div class="screen" data-zoom><img src="assets/kenyaemr/hero-payment-desk.webp" alt="The Payment desk: Njeri Kamau's bill with two pending items, and the Payments panel offering Cash, Insurance, Mobile money and Waiver" width="1440" height="900"></div>
+      <figcaption class="fine">THE PAYMENT DESK, IN THE OPENMRS REFERENCE THEME · ALL PATIENTS FICTIONAL</figcaption>
+    </figure>
+  </div>
+
+  <section class="band overview split" aria-labelledby="overview-label">
+    <span class="label label--cobalt" id="overview-label">Overview</span>
+    <div class="overview__body">
+      <p class="overview__lede">KenyaEMR is the medical record system used in health facilities across Kenya, built on the open-source OpenMRS platform. At Palladium I designed its billing module from scratch: how a cashier finds a patient's bill and takes payment by cash, insurance or mobile money, for outpatient and inpatient care.</p>
+      <div class="card-grid">
+        <div class="card"><span class="label label--sub">Problem</span><p>Facilities needed to bill patients inside the medical record. Waivers, where a facility lets a patient pay less or nothing, worked differently in every facility we tested.</p></div>
+        <div class="card card--outcome"><span class="label label--cobalt">Outcome</span><p>One payment desk where a waiver is one of four ways to pay. OpenMRS adopted the designs as its standard billing design guide.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Results">
+    <div class="stat"><span class="stat__n">7</span><span class="stat__label">health facilities where we field-tested billing</span></div>
+    <div class="stat"><span class="stat__n">4</span><span class="stat__label">ways to pay at one desk, waiver included</span></div>
+    <div class="stat"><span class="stat__n">1</span><span class="stat__label">billing design, adopted as the OpenMRS standard</span></div>
+  </section>
+
+  <section class="band section split">
+    <h2 class="h-section">The challenge<br><span class="accent">one bill, many rules</span></h2>
+    <div class="prose">
+      <p>A hospital visit builds a bill line by line: registration, consultation, lab tests. Some lines are exempt, some are already paid, some are still pending. The cashier has to see what is owed and take it in whatever way the patient can pay.</p>
+      <p>Most patients pay by cash, insurance or mobile money. Some can't pay at all, and the facility waives part or all of the bill. That last case is where the real complexity was.</p>
+    </div>
+  </section>
+
+  <section class="band section section--tight-top stack">
+    <div class="split ruled">
+      <h2 class="h-section">Version one<br><span class="accent">a full cashier module</span></h2>
+      <div class="prose">
+        <p>The first version covered everything a cashier's office does: payment points that cashiers clock in to, payment modes, a bill manager, charge items and payment history, across 23 screens.</p>
+        <p>A waiver was a separate action. The cashier opened a bill, chose Waive Bill from its menu, entered an amount and typed a reason.</p>
+      </div>
+    </div>
+    <div class="shots-2">
+      <figure class="shot">
+        <div class="screen" data-zoom><img src="assets/kenyaemr/v1-overview.webp" alt="Cashier module overview: a billing list of pending bills and a Clock In button" width="1784" height="1080" loading="lazy"></div>
+        <figcaption>The cashier clocks in to a payment point, then works through pending bills.</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="screen" data-zoom><img src="assets/kenyaemr/v1-waive.webp" alt="Bill manager with the Waive Bill panel open: an amount to waive and a waiver reason" width="1784" height="1080" loading="lazy"></div>
+        <figcaption>Waive Bill sat in the bill's action menu, apart from taking payment.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band band--night section stack">
+    <div class="split">
+      <h2 class="h-section">Field testing<br><span class="accent">7 facilities, real cases</span></h2>
+      <div class="prose"><p>We took the cashier module into 7 health facilities and ran it through different case scenarios. The gaps were in waivers, in three ways, and one fixed waiver path couldn't serve every facility.</p></div>
+    </div>
+    <div class="finding-grid">
+      <div class="system-box"><span class="label">01 · Approval</span><span class="system-box__title">Who can approve?</span><span class="system-box__text">Facilities disagreed on who should hold the role of approving a waiver.</span></div>
+      <div class="system-box system-box--key"><span class="label">02 · Confirmation</span><span class="system-box__title">One check or two?</span><span class="system-box__text">Some facilities needed a second person to confirm a waiver before it went through.</span></div>
+      <div class="system-box"><span class="label">03 · Eligibility</span><span class="system-box__title">Who qualifies?</span><span class="system-box__text">The categories of patients who qualified for a waiver differed from facility to facility.</span></div>
+    </div>
+  </section>
+
+  <section class="band section stack">
+    <div class="split">
+      <h2 class="h-section">The redesign<br><span class="accent">three decisions</span></h2>
+      <div class="prose"><p>Version two became the Payment desk: 14 screens running from search to receipt, including what happens when a patient isn't found or the connection times out.</p></div>
+    </div>
+    <div class="decision-grid">
+      <article class="decision">
+        <div class="decision__head"><span class="power__n" aria-hidden="true">01</span><h3>A waiver is a way to pay</h3></div>
+        <dl>
+          <div><dt class="is-chose">CHOSE</dt><dd class="is-chose">Waiver as the fourth payment method, next to Cash, Insurance and Mobile money, in the same Payments panel.</dd></div>
+          <div><dt>INSTEAD OF</dt><dd>A separate Waive Bill action in the bill's menu.</dd></div>
+          <div><dt>WHY</dt><dd>A bill can be settled in parts, some waived and the rest paid, in one place. Each waiver is recorded with an amount and a reference, like any other payment.</dd></div>
+        </dl>
+      </article>
+      <article class="decision">
+        <div class="decision__head"><span class="power__n" aria-hidden="true">02</span><h3>Rules approve the waiver</h3></div>
+        <dl>
+          <div><dt class="is-chose">CHOSE</dt><dd class="is-chose">Waiver categories set in configuration: a patient who falls into one, such as a prisoner, qualifies automatically. A later release added a second route, through the national insurance system built into KenyaEMR.</dd></div>
+          <div><dt>INSTEAD OF</dt><dd>A person approving each waiver by hand, on one path built into the screens.</dd></div>
+          <div><dt>WHY</dt><dd>Who approves, how many checks and who qualifies all differed across the 7 facilities. Rules in configuration fit each one without changing the screens.</dd></div>
+        </dl>
+      </article>
+      <article class="decision">
+        <div class="decision__head"><span class="power__n" aria-hidden="true">03</span><h3>One desk, search first</h3></div>
+        <dl>
+          <div><dt class="is-chose">CHOSE</dt><dd class="is-chose">A single Payment desk: find the patient, tick the lines being paid, take payment.</dd></div>
+          <div><dt>INSTEAD OF</dt><dd>A module with six sections in the cashier's menu.</dd></div>
+          <div><dt>WHY</dt><dd>At the counter, taking payment is one task. Setup such as payment points and modes leaves the cashier's menu.</dd></div>
+        </dl>
+      </article>
+    </div>
+    <div class="compare-stages compare-stages--panels">
+      <figure class="shot">
+        <span class="screen-tag">Before · version one</span>
+        <div class="screen" data-zoom><img src="assets/kenyaemr/v1-waive-panel.webp" alt="Version one: the Waive Bill panel with an amount to waive and a reason box" width="434" height="552" loading="lazy"></div>
+        <figcaption>Waive Bill: its own panel, reached from the bill's menu.</figcaption>
+      </figure>
+      <figure class="shot">
+        <span class="screen-tag screen-tag--after">After · the Payment desk</span>
+        <div class="screen screen--after" data-zoom><img src="assets/kenyaemr/v2-payments-panel.webp" alt="Version two: the Payments panel with Cash, Insurance, Mobile money and Waiver, an amount and a reference number" width="434" height="452" loading="lazy"></div>
+        <figcaption>Waiver: one of four ways to pay, with an amount and a reference.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band section section--tight-top stack">
+    <div class="split">
+      <h2 class="h-section">Try it<br><span class="accent">settle Njeri's bill</span></h2>
+      <div class="prose"><p>Njeri owes 420 KSH for a consultation and two lab tests. Waive part of it, then pay the rest by mobile money, the way a cashier would on the Payment desk.</p></div>
+    </div>
+    <div class="demo">
+      <div class="demo__row demo__row--top">
+        <div class="till" data-till data-due="420">
+          <div class="till__who"><strong>Njeri Kamau</strong><span class="till__id">100GEJ876RE</span></div>
+          <span class="till__label" id="method-label">Select a payment method</span>
+          <div class="chips" role="group" aria-labelledby="method-label">
+            <button type="button" class="chip" data-method="Cash" aria-pressed="false">Cash</button>
+            <button type="button" class="chip" data-method="Insurance" aria-pressed="false">Insurance</button>
+            <button type="button" class="chip" data-method="Mobile money" aria-pressed="false">Mobile money</button>
+            <button type="button" class="chip" data-method="Waiver" aria-pressed="true">Waiver</button>
+          </div>
+          <div>
+            <label class="till__label" for="till-amount">Enter an amount</label>
+            <input id="till-amount" type="range" min="0" max="420" step="10" value="200">
+            <div class="till__scale"><span>0</span><strong><span data-amount>200</span> KSH by <span data-method-name>Waiver</span></strong><span data-max>420</span></div>
+          </div>
+          <div class="till__actions">
+            <button type="button" class="btn btn--primary" data-pay>Process payment</button>
+            <button type="button" class="btn" data-reset>Start over</button>
+          </div>
+        </div>
+        <div class="ledger" data-ledger aria-live="polite">
+          <span class="label label--sub">The bill</span>
+          <div class="ledger__row"><span>Consultation</span><span>120</span></div>
+          <div class="ledger__row"><span>VDRL test × 2</span><span>400</span></div>
+          <div class="ledger__row ledger__row--muted"><span>Discount</span><span>−100</span></div>
+          <div class="ledger__row ledger__row--total"><span>Total due</span><span>420 KSH</span></div>
+          <span class="label label--sub ledger__label">Payments</span>
+          <span class="ledger__empty" data-empty>None yet</span>
+          <div data-payments></div>
+          <div class="ledger__balance"><span>Balance</span><span data-balance>420 KSH</span></div>
+          <div class="ledger__done" data-done hidden>Payment processed · bill settled</div>
+          <span class="ledger__note">A stand-in for the real Payments panel. Amounts match the bill in the hero screen.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band section section--tight-top stack journey" data-journey>
+    <div class="split ruled">
+      <h2 class="h-section">Before the bill<br><span class="accent">the patient's whole stay</span></h2>
+      <div class="prose">
+        <p>Every line on a bill starts somewhere in the patient's journey. Alongside billing, I helped design the inpatient module, starting from early work that Partners In Health shared with the OpenMRS community.</p>
+        <p>As part of the OpenMRS design community, we tested and shaped it before KenyaEMR adopted it. Follow Njeri from the front desk to the payment desk.</p>
+      </div>
+    </div>
+    <div class="chips" role="group" aria-label="Steps in Njeri's stay">
+      <button type="button" class="chip" data-step aria-pressed="true" data-img="assets/kenyaemr/j1-registration.webp" data-alt="Registration: searching for Njeri Kamau and starting her visit" data-title="Check in" data-text="Registration finds Njeri by name or ID and starts her visit."><span class="chip__num">1</span>Check in</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/kenyaemr/j2-triage.webp" data-alt="Njeri's patient chart with flags, vitals and the triage panel" data-title="Triage" data-text="Vitals, flags and history on one patient chart."><span class="chip__num">2</span>Triage</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/kenyaemr/ip-admission.webp" data-alt="PNC ward view with an admission request and a bed being chosen" data-title="Admit" data-text="Admission requests are matched to free beds on the ward."><span class="chip__num">3</span>Admit</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/kenyaemr/j3-ward-notes.webp" data-alt="Ward view with Njeri's card selected and in-patient notes open" data-title="Ward care" data-text="Nurses and doctors write notes straight from the ward view."><span class="chip__num">4</span>Ward care</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/kenyaemr/ip-transfer.webp" data-alt="Transfer panel for Njeri with a list of wards and available beds" data-title="Transfer" data-text="Move a patient to another ward, or swap beds within one."><span class="chip__num">5</span>Transfer</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/kenyaemr/ip-discharge.webp" data-alt="Discharge panel with type of discharge, a form and a checklist" data-title="Discharge" data-text="A discharge checklist before she goes home."><span class="chip__num">6</span>Discharge</button>
+      <button type="button" class="chip" data-step aria-pressed="false" data-img="assets/kenyaemr/hero-payment-desk.webp" data-alt="Payment desk with Njeri's bill and the four ways to pay" data-title="Pay" data-text="Her bill is waiting at the Payment desk."><span class="chip__num">7</span>Pay</button>
+    </div>
+    <figure>
+      <div class="screen" data-zoom><img data-step-img src="assets/kenyaemr/j1-registration.webp" alt="Registration: searching for Njeri Kamau and starting her visit" width="1440" height="900" loading="lazy"></div>
+      <figcaption>
+        <span class="journey__caption" aria-live="polite"><span class="journey__n" data-step-n>01</span><span><span class="journey__title" data-step-title>Check in</span><span class="journey__text" data-step-text>Registration finds Njeri by name or ID and starts her visit.</span></span></span>
+        <span class="journey__nav">
+          <button type="button" class="round-btn" data-step-prev aria-label="Previous step">← Back</button>
+          <button type="button" class="round-btn round-btn--primary" data-step-next aria-label="Next step">Next →</button>
+        </span>
+      </figcaption>
+    </figure>
+    <span class="fine">INPATIENT SCREENS SHOWN IN KENYAEMR'S THEME · ALL PATIENTS AND STAFF FICTIONAL</span>
+  </section>
+
+  <section class="band outcome split">
+    <h2 class="h-section">Outcome<br><span class="accent">what changed</span></h2>
+    <ul>
+      <li>Designed for KenyaEMR, then adopted by OpenMRS as its standard billing design guide.</li>
+      <li>The waiver gaps found in 7 facilities were fixed in the redesign.</li>
+      <li>Cash, insurance, mobile money and waivers are handled at one desk, for outpatient and inpatient bills.</li>
+    </ul>
+  </section>
+
+  <section class="band section split">
+    <h2 class="h-section">Next time<br><span class="accent">what I'd do differently</span></h2>
+    <div class="numbered">
+      <div class="numbered__item"><span class="numbered__n" aria-hidden="true">01</span><div><h3>Ask about waivers on day one</h3><p>The waiver rules surfaced in the field. A short survey of facility policies before version one would have caught them earlier.</p></div></div>
+      <div class="numbered__item"><span class="numbered__n" aria-hidden="true">02</span><div><h3>Measure the counter</h3><p>Time from search to receipt, before and after the Payment desk, would turn a strong story into a number.</p></div></div>
+    </div>
+  </section>
+
+  <section class="band next">
+    <a href="alinkeo.html" data-cursor="Next ↗">
+      <span class="next__text"><span class="label label--cobalt">Next project · 05 · Shipped</span><span class="next__title">Alinkeo <span class="accent">transcripts</span> →</span></span>
+      <img src="assets/work/alinkeo.webp" alt="" width="1600" height="1050" loading="lazy">
+    </a>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__cta">
+    <div class="site-footer__sign">
+      <img class="footer-mark" src="assets/logo/tt-primary-animated-colour-on-dark.svg" alt="" width="233" height="81" loading="lazy">
+      <h2>Have a high-stakes<br>product? <span class="accent">Let's talk.</span></h2>
+    </div>
+    <a class="pill-button" href="mailto:ted.thie@outlook.com">ted.thie@outlook.com</a>
+  </div>
+  <div class="site-footer__base"><span>© 2026 · Built between table tennis rallies 🏓, layered like a good lasagna 🍝</span><a href="https://www.linkedin.com/in/ted-thie/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+</footer>
+</body>
+</html>

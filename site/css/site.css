@@ -1257,3 +1257,10 @@ html.lb-open { overflow: hidden; }
   transition-delay: var(--rv-d, 0ms), var(--rv-d, 0ms), 0s;
 }
 @media (max-width: 760px) { .avatar-wrap { justify-self: center; } }
+/* Printing shows everything, including sections the reader never scrolled to. */
+@media print {
+  .rv [data-split], .rv [data-rise], .rv [data-rise-kids], .rv [data-clip-kids],
+  .rv .cs-hero .label, .rv .cs-hero h1, .rv .cs-hero__sub, .rv .cs-meta, .rv .cs-shot,
+  .rv .gate .label, .rv .gate h1, .rv .gate__lede, .rv .gate form, .rv .gate__help, .rv .gate__preview { visibility: visible !important; }
+  .rv-w > span, .rv-rise, .rv-clip, .rv-clip > img, .work-card.rv-rise .work-card__media img { transform: none !important; opacity: 1 !important; clip-path: none !important; transition: none !important; }
+}

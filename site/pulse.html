@@ -26,6 +26,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap">
 <link rel="stylesheet" href="css/site.css">
 <script src="js/site.js" defer></script>
+<script>/* Hide reveal targets until js/site.js sets them up; show everything after 3s if it never does. */
+(function (d) { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; d.classList.add('rv'); setTimeout(function () { if (!d.classList.contains('rv-on')) d.classList.remove('rv'); }, 3000); })(document.documentElement);</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>

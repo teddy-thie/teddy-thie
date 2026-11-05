@@ -1187,6 +1187,7 @@
       initRetrade(root);
       initClaim(root);
       prepZoom(root);
+      if (revealApi) revealApi(root);
       var h1 = root.querySelector('h1');
       // Move focus to the title only when someone just typed the password, not on a remembered unlock
       if (h1 && !quiet) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
@@ -1352,12 +1353,48 @@
      data-wait        extra wait every time, e.g. the right-hand card of a row
      data-stagger     ms between words of a split element
      Everything plays once, when it first scrolls into view. */
+  var revealApi = null; // set by initReveal; the NDA unlock uses it on the decrypted case study
+
+  /* Case studies are marked by script rather than by hand, so the same rules reach the locked
+     case studies once they are decrypted. Titles and section headings rise word by word; screens,
+     stats and the next-project card rise as blocks. Body text and the interactive demos stay still. */
+  var REVEAL_DEMOS = '[data-journey], [data-forecast], [data-wipe], [data-bands-demo], [data-lesson], [data-retrade], [data-resched], [data-claim], [data-brands], [data-till]';
+  function markCaseStudy(root) {
+    function set(sel, attrs) {
+      Array.prototype.forEach.call(root.querySelectorAll(sel), function (el) {
+        if (el.closest(REVEAL_DEMOS) || el.hasAttribute('data-split') || el.hasAttribute('data-rise') || el.hasAttribute('data-rise-kids')) return;
+        Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+      });
+    }
+    // Hero, played as a sequence on load
+    set('.cs-hero .label, .gate .label', { 'data-split': '', 'data-delay': '40', 'data-stagger': '30' });
+    set('.cs-hero h1, .gate h1', { 'data-split': '', 'data-delay': '120', 'data-stagger': '80' });
+    set('.cs-hero__sub, .gate__lede', { 'data-rise': '', 'data-delay': '420' });
+    set('.cs-meta', { 'data-rise': '', 'data-delay': '560' });
+    set('.gate form', { 'data-rise': '', 'data-delay': '500' });
+    set('.gate__help', { 'data-rise': '', 'data-delay': '580' });
+    set('.cs-shot', { 'data-rise': '', 'data-delay': '480' });
+    set('.gate__preview', { 'data-rise': 'pop', 'data-delay': '260' });
+    // As the page scrolls
+    set('.h-section', { 'data-split': '', 'data-stagger': '70' });
+    set('.stats', { 'data-rise-kids': '100' });
+    set('.next a', { 'data-rise': '' });
+    set('.site-footer h2', { 'data-split': '', 'data-stagger': '60' });
+    // Screens: only the outermost frame of each group rises, so nothing animates twice
+    var visual = 'figure.shot, .decision__shot, .screen, .phone';
+    Array.prototype.forEach.call(root.querySelectorAll(visual), function (el) {
+      if (el.closest(REVEAL_DEMOS) || el.closest('.cs-shot, .gate__preview, [data-rise], [data-rise-kids]')) return;
+      var up = el.parentElement && el.parentElement.closest(visual);
+      if (up && root.contains(up)) return;
+      el.setAttribute('data-rise', '');
+    });
+  }
+
   function initReveal() {
     var root = document.documentElement;
     if (!root.classList.contains('rv')) return;
     if (reduceMotion || !('IntersectionObserver' in window)) { root.classList.remove('rv'); return; }
     root.classList.add('rv-on');
-    var t0 = Date.now();
 
     function split(el) {
       var label = el.textContent.replace(/\s+/g, ' ').trim();
@@ -1392,7 +1429,7 @@
     }
 
     function play(el) {
-      var base = (Date.now() - t0 < 1200 ? Number(el.getAttribute('data-delay')) || 0 : 0) + (Number(el.getAttribute('data-wait')) || 0);
+      var base = (Date.now() - (el._rvT0 || 0) < 1200 ? Number(el.getAttribute('data-delay')) || 0 : 0) + (Number(el.getAttribute('data-wait')) || 0);
       var step = Number(el.getAttribute('data-rise-kids') || el.getAttribute('data-clip-kids'));
       var targets = step ? Array.prototype.slice.call(el.children) : [el];
       void el.offsetWidth; // settle the hidden state first so the change animates
@@ -1410,23 +1447,31 @@
       });
     }, { rootMargin: '0px 0px -10% 0px' });
 
-    // Apply the hidden starting state without a transition, or blocks already on screen would fade out first.
-    root.classList.add('rv-init');
-    var els = Array.prototype.slice.call(document.querySelectorAll('[data-split], [data-rise], [data-rise-kids], [data-clip-kids]'));
-    els.forEach(function (el) {
-      if (el.hasAttribute('data-split')) split(el);
-      if (el.hasAttribute('data-rise')) {
-        el.classList.add('rv-rise');
-        if (el.getAttribute('data-rise') === 'pop') el.classList.add('rv-rise--pop');
-      }
-      Array.prototype.forEach.call(el.hasAttribute('data-rise-kids') || el.hasAttribute('data-clip-kids') ? el.children : [], function (c) {
-        c.classList.add(el.hasAttribute('data-clip-kids') ? 'rv-clip' : 'rv-rise');
+    function setup(scope) {
+      // Apply the hidden starting state without a transition, or blocks already on screen would fade out first.
+      var t0 = Date.now();
+      root.classList.add('rv-init');
+      var els = Array.prototype.slice.call(scope.querySelectorAll('[data-split], [data-rise], [data-rise-kids], [data-clip-kids]')).filter(function (el) { return !el.classList.contains('rv-ready'); });
+      els.forEach(function (el) {
+        el._rvT0 = t0;
+        if (el.hasAttribute('data-split')) split(el);
+        if (el.hasAttribute('data-rise')) {
+          el.classList.add('rv-rise');
+          if (el.getAttribute('data-rise') === 'pop') el.classList.add('rv-rise--pop');
+        }
+        Array.prototype.forEach.call(el.hasAttribute('data-rise-kids') || el.hasAttribute('data-clip-kids') ? el.children : [], function (c) {
+          c.classList.add(el.hasAttribute('data-clip-kids') ? 'rv-clip' : 'rv-rise');
+        });
+        el.classList.add('rv-ready');
       });
-      el.classList.add('rv-ready');
-    });
-    void root.offsetWidth;
-    root.classList.remove('rv-init');
-    els.forEach(function (el) { io.observe(el); });
+      void root.offsetWidth;
+      root.classList.remove('rv-init');
+      els.forEach(function (el) { io.observe(el); });
+    }
+
+    if (document.querySelector('.cs-hero, [data-nda-root]')) markCaseStudy(document);
+    setup(document);
+    revealApi = function (scope) { markCaseStudy(scope); setup(scope); };
   }
 
   function boot() {

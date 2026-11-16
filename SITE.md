@@ -2,11 +2,11 @@
 
 > The profile intro lives in `README.md`. These are the notes for the website in `site/`.
 
-A static site: plain HTML, one CSS file and one JavaScript file. No build step, nothing to install, so it can be hosted anywhere.
+A static site: plain HTML, two CSS files and one JavaScript file. Every design value (colour, type, spacing, radius, shadow) comes from `tokens.json`. `site/css/tokens.css` is generated from it and committed, so deploying still needs no build step and nothing to install.
 
 ```
-ted-thie-portfolio/
-  site/              ← the website. Upload or deploy only this folder.
+teddy-thie/
+  site/              ← the website. Cloudflare serves only this folder.
     index.html         Home (work grid)
     about.html         About
     kenyaemr.html      Case study, public
@@ -17,17 +17,26 @@ ted-thie-portfolio/
     hiring.html        Case study under NDA (password gate + encrypted content)
     trading-sim.html   Snapshot under NDA (password gate + encrypted content)
     pulse.html         Case study, private until launch (password gate + encrypted content)
-    css/site.css       All styles. Colours and fonts are tokens at the top.
-    js/site.js         Hero rotator, demos, steppers, NDA unlock, avatar eyes, cursor
+    css/tokens.css     Generated from tokens.json. Don't edit by hand.
+    css/site.css       All styles. Reads every value from tokens.css, never a raw one.
+    js/site.js         Hero rotator, demos, steppers, NDA unlock, avatar eyes, cursor, footer snap
     assets/            Images, avatar, logo, favicon
-  nda-source/        ← readable NDA case studies and their images. Never upload this.
+    _headers           Security headers Cloudflare applies on deploy (not served)
+  tokens.json        ← the single source for every design value
+  tools/
+    build-tokens.mjs   tokens.json  →  site/css/tokens.css
+    check-tokens.mjs   fails if tokens drift, contrast drops below AA, or site.css uses a raw value
+    tokens-core.mjs    shared by the token scripts
+    figma-tokens.mjs   tokens.json  →  the variables and styles Figma needs
+    figma-check.mjs    prints a Figma script that checks the design-system file against tokens.json
+    encrypt-nda.mjs    nda-source/<name>  →  site/<page> (encrypted)
+    decrypt-nda.mjs    site/<page>        →  readable copy, for recovery
+  wrangler.jsonc     ← Cloudflare deploy config
+  nda-source/        ← readable NDA case studies and their images. Never commit this.
     <name>/meta.json       title + which page in site/ it encrypts into
     <name>/case-study.html the readable case study
     <name>/img/            images, referenced in the HTML as asset:<file-name-without-extension>
-  tools/
-    encrypt-nda.mjs    nda-source/<name>  →  site/<page> (encrypted)
-    decrypt-nda.mjs    site/<page>        →  readable copy, for recovery
-  raw/               ← full-size Figma exports. Never upload this.
+  raw/               ← full-size Figma exports. Never commit this.
 ```
 
 ## Preview locally
@@ -38,11 +47,38 @@ npx serve site
 
 Opening `site/index.html` straight from disk also works, but the avatar's eyes only follow the cursor when the site is served.
 
+## Change a colour, size or spacing
+
+Values live in `tokens.json`, never in `site.css`.
+
+1. Edit the value in `tokens.json`.
+2. `node tools/build-tokens.mjs` rewrites `site/css/tokens.css`.
+3. `node tools/check-tokens.mjs` must pass before you commit. It fails when:
+   - `tokens.css` is out of date with `tokens.json`,
+   - a colour pair listed under `$extensions` → `cc.tedthie.contrast` drops below WCAG AA,
+   - `site.css` uses `var(--name)` for a token that doesn't exist,
+   - `site.css` writes a colour, font size, line height, letter spacing, weight, padding, margin, gap or radius as a raw value.
+
+Two kinds of raw value are allowed, and the check lists them rather than failing:
+- a layout-only value off the scale, marked `/* exempt: <reason> */` on its line;
+- product demos between `/* tokens:skip-start */` and `/* tokens:skip-end */`, which recreate a client's own UI in its own palette.
+
+### Keep Figma in step
+
+The design-system Figma file holds the same tokens as variables.
+
+- `node tools/figma-tokens.mjs > figma-tokens.json` produces the variables, modes and styles to load into Figma. Fluid sizes get two modes: Desktop (1440 wide) and Mobile (390 wide).
+- `node tools/figma-check.mjs > /tmp/figma-check.js` prints a script to run in that file, through Claude's Figma connection or the Figma plugin console. It reports variables that are missing, extra or different, and any component layer using a raw value instead of a variable.
+
 ## Put it online
 
-- **Netlify:** drag the `site` folder onto app.netlify.com/drop.
-- **Vercel:** `npx vercel site`.
-- **GitHub Pages:** deploy the `site` folder. Keep `nda-source/` and `raw/` out of the repo (see `.gitignore`).
+The site runs on Cloudflare as a Worker that serves the `site` folder (`wrangler.jsonc`). Every push or merge to `main` deploys to tedthie.cc in about a minute.
+
+- Work on a branch, open a pull request, merge to `main`.
+- Pull-request branches show a failing "Workers Builds" check because preview builds aren't set up. That doesn't affect production.
+- `site/_headers` sets the security headers, including the content security policy. If you add a script, font or image from another site, allow it there or the browser will block it.
+
+The `site` folder is still plain files, so it would also run on any static host if you ever move.
 
 ## The password
 
@@ -56,7 +92,7 @@ Then send the new one to anyone who asks.
 
 ## Your CV
 
-The "Resume" button on every page links to `resume.pdf`. Save your CV as `site/resume.pdf`, next to `index.html`, before you upload the `site` folder.
+The "Resume" button on every page links to `resume.pdf`. Save your CV as `site/resume.pdf`, next to `index.html`, and commit it.
 
 ## Editing an NDA case study
 

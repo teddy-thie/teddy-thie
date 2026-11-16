@@ -1476,14 +1476,14 @@
 
   /* ---------- Footer snap ----------
      Scrolling down into the footer finishes the trip: once the reader stops
-     with some of the footer showing, the page eases the rest of the way down.
+     with any of the dark footer showing, the page eases the rest of the way down.
      Scrolling up never snaps, so leaving the footer stays easy. Any wheel,
      touch or key input during the glide hands control straight back. */
   function initFooterSnap() {
     var footer = document.querySelector('.site-footer');
     if (!footer || reduceMotion || !window.requestAnimationFrame) return;
     var html = document.documentElement;
-    var ENTER = 0.15;   // share of the viewport the footer must fill before it snaps
+    var ENTER = 8;      // px of the footer's top edge that must show before it snaps
     var IDLE = 140;     // ms without scrolling that counts as "stopped"
     var lastY = window.pageYOffset, dir = 0, timer = null, raf = null, touching = false;
 
@@ -1511,7 +1511,7 @@
       if (touching || raf || dir <= 0) return;
       var r = footer.getBoundingClientRect(), vh = window.innerHeight;
       if (r.height > vh) return;                 // taller than the screen: leave it alone
-      if (vh - r.top < vh * ENTER) return;       // only grazed the footer
+      if (vh - r.top < ENTER) return;            // footer not on screen yet
       if (r.bottom - vh <= 1) return;            // already at the bottom
       glide(maxY());
     }

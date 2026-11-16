@@ -135,6 +135,7 @@ p { text-wrap: pretty; }
   border-top: 1px solid var(--night-rule); padding-top: var(--space-6);
   font-size: var(--text-small); color: var(--night-faint);
 }
+.site-footer__links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); }
 .site-footer__base a { text-decoration: none; min-height: 24px; }
 .site-footer__base a:hover { color: var(--on-cobalt); }
 

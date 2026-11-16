@@ -1474,6 +1474,62 @@
     revealApi = function (scope) { markCaseStudy(scope); setup(scope); };
   }
 
+  /* ---------- Footer snap ----------
+     Scrolling down into the footer finishes the trip: once the reader stops
+     with some of the footer showing, the page eases the rest of the way down.
+     Scrolling up never snaps, so leaving the footer stays easy. Any wheel,
+     touch or key input during the glide hands control straight back. */
+  function initFooterSnap() {
+    var footer = document.querySelector('.site-footer');
+    if (!footer || reduceMotion || !window.requestAnimationFrame) return;
+    var html = document.documentElement;
+    var ENTER = 0.15;   // share of the viewport the footer must fill before it snaps
+    var IDLE = 140;     // ms without scrolling that counts as "stopped"
+    var lastY = window.pageYOffset, dir = 0, timer = null, raf = null, touching = false;
+
+    function maxY() { return Math.max(0, html.scrollHeight - window.innerHeight); }
+    function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+    function stop() {
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      html.style.scrollBehavior = '';
+    }
+    function glide(to) {
+      var from = window.pageYOffset, dist = to - from;
+      if (Math.abs(dist) < 2) return;
+      var dur = Math.min(900, Math.max(480, Math.abs(dist) * 1.2)), t0 = null;
+      html.style.scrollBehavior = 'auto';   // the CSS smooth scroll would fight each frame
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / dur);
+        window.scrollTo(0, from + dist * ease(p));
+        if (p < 1) raf = requestAnimationFrame(step); else stop();
+      }
+      raf = requestAnimationFrame(step);
+    }
+    function settle() {
+      timer = null;
+      if (touching || raf || dir <= 0) return;
+      var r = footer.getBoundingClientRect(), vh = window.innerHeight;
+      if (r.height > vh) return;                 // taller than the screen: leave it alone
+      if (vh - r.top < vh * ENTER) return;       // only grazed the footer
+      if (r.bottom - vh <= 1) return;            // already at the bottom
+      glide(maxY());
+    }
+    function queue() { if (timer) clearTimeout(timer); timer = setTimeout(settle, IDLE); }
+
+    window.addEventListener('scroll', function () {
+      var y = window.pageYOffset;
+      if (!raf && y !== lastY) dir = y > lastY ? 1 : -1;
+      lastY = y;
+      queue();
+    }, { passive: true });
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (type) {
+      window.addEventListener(type, function () { if (raf) stop(); }, { passive: true });
+    });
+    window.addEventListener('touchstart', function () { touching = true; }, { passive: true });
+    window.addEventListener('touchend', function () { touching = false; queue(); }, { passive: true });
+  }
+
   function boot() {
     initEyes();
     initCursor();
@@ -1491,6 +1547,7 @@
     initGate();
     initBrandSwitcher(document);
     initReveal();
+    initFooterSnap();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

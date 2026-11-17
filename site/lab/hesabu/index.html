@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hesabu: an AI analyst for Kenya's mobile money data · Personal concept · Ted Thie</title>
+<meta name="description" content="A personal concept: ask about Kenya's mobile money in plain words and get a chart, a one-line answer, the steps behind it and the source. Built on the Central Bank of Kenya's Mobile Payments table.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/hesabu/">
+<meta property="og:title" content="Hesabu: an AI analyst for Kenya's mobile money data">
+<meta property="og:description" content="Plain-word questions, a chart, the steps and the source. Says so when the data can't answer. A personal concept by Ted Thie.">
+<meta property="og:url" content="https://tedthie.cc/lab/hesabu/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600&amp;family=Inter:wght@400;500;600&amp;family=Roboto+Mono&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="hesabu.css">
+<script src="data.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<div class="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <p class="concept__label"><strong>Hesabu</strong> <span>Personal concept, not CBK work.<span class="concept__more"> The figures are the Central Bank of Kenya&rsquo;s own table; the answers are worked out from it by fixed rules, not a live AI model.</span></span></p>
+  <div class="concept__view" role="group" aria-label="Show">
+    <span class="concept__view-label">Show</span>
+    <button type="button" data-view="app" aria-pressed="true">The app</button>
+    <button type="button" data-view="plan" aria-pressed="false">Event plan</button>
+  </div>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<div class="hb" id="app">
+  <aside class="side" id="side" aria-label="Hesabu">
+    <button type="button" class="logo" data-new aria-label="Hesabu, start a new question"></button>
+    <button type="button" class="btn btn--new" data-new></button>
+    <p class="caps">Dataset</p>
+    <div id="dataset"></div>
+    <nav class="recent" id="recent" aria-label="Recent questions"></nav>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="mhead">
+      <button type="button" class="logo" data-new aria-label="Hesabu, start a new question"></button>
+      <span class="avatar"><img src="avatar.png" alt="Wanjiku"></span>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" data-share></button>
+      <span class="avatar"><img src="avatar.png" alt="Wanjiku"></span>
+    </div>
+    <div class="scroll" id="scroll">
+      <div id="view"><noscript><p class="col" style="padding-top:96px">This concept needs JavaScript to run.</p></noscript></div>
+    </div>
+    <div class="dock" id="dock" hidden></div>
+    <div class="drawer-wrap" id="drawer" hidden></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <section class="plan" id="plan" hidden aria-labelledby="plan-title"></section>
+</div>
+
+</body>
+</html>

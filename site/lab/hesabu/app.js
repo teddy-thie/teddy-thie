@@ -635,7 +635,7 @@
       lines[0].vals.forEach(function (v, k) {
         svg.appendChild(svgEl('rect', { x: X(k) - bw / 2, y: Y(v), width: bw, height: Y(y0) - Y(v), rx: 3, fill: k === c.hi ? '#2D7FF9' : '#CFDFFF' }));
       });
-      (c.labels || []).forEach(function (k) {
+      (phone ? [c.hi] : (c.labels || [])).forEach(function (k) {
         svg.appendChild(svgEl('text', { x: X(k), y: Y(lines[0].vals[k]) - 8, 'text-anchor': 'middle', 'font-size': phone ? 11 : 13, 'font-weight': 600, fill: '#333333' }, M[c.key].short(lines[0].vals[k])));
       });
     } else {
@@ -675,7 +675,7 @@
   }
   // Every other month, plus the labelled bars and the last one, never two side by side unless both are labelled
   function barTicks(c, phone) {
-    var n = c.b - c.a, lab = c.labels || [c.hi], cand = phone ? [0, n] : [];
+    var n = c.b - c.a, lab = phone ? [c.hi] : (c.labels || [c.hi]), cand = phone ? [0, n] : [];
     if (!phone) for (var k = 0; k <= n; k += 2) cand.push(k);
     cand = cand.concat(lab, [n]).filter(function (k, j, arr) { return arr.indexOf(k) === j; }).sort(function (x, y) { return x - y; });
     var keep = cand.filter(function (k) { return lab.indexOf(k) > -1 || !lab.some(function (j) { return Math.abs(j - k) === 1; }); });

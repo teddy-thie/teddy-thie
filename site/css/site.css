@@ -1248,7 +1248,6 @@ html.lb-open { overflow: hidden; }
 }
 .fun__tab:hover { color: var(--ink); }
 .fun__tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
-.fun__count { font-family: var(--f-mono); font-size: var(--text-label); font-weight: var(--weight-regular); letter-spacing: var(--tracking-mono); color: var(--sub); }
 .fun__panel:focus-visible { outline-offset: var(--space-2); }
 .fun__panel + .fun__panel { margin-top: var(--space-16); }
 .is-tabbed .fun__panel + .fun__panel { margin-top: 0; }

@@ -1231,8 +1231,10 @@ html.lb-open { overflow: hidden; }
 }
 
 /* ---------- Fun page: Design, Labs and Food tabs ---------- */
-.hero-fun { padding-bottom: var(--space-16); display: flex; flex-direction: column; gap: var(--space-18); }
-.hero-fun__copy { display: flex; flex-direction: column; gap: var(--space-6); max-width: 980px; }
+/* The avatar stands on the bottom edge of the band, so the band has no bottom padding. */
+.hero-fun { padding-bottom: 0; display: flex; flex-direction: column; gap: var(--space-18); }
+.hero-fun .hero-home__grid { margin-bottom: 0; }
+.hero-fun__copy { display: flex; flex-direction: column; gap: var(--space-6); padding-bottom: var(--space-18); min-width: 0; }
 .fun { padding-top: var(--space-14); }
 .fun__tabs { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-10); border-bottom: 1px solid var(--line); margin-bottom: var(--space-10); }
 .fun__tabs[hidden] { display: none; }
@@ -1319,6 +1321,7 @@ html.lb-open { overflow: hidden; }
   .fun__tabs { gap: var(--space-1) var(--space-6); }
   .fun__intro { grid-template-columns: minmax(0, 1fr); }
   .hero-fun { gap: var(--space-12); }
+  .hero-fun__copy { padding-bottom: var(--space-4); }
 }
 @media (prefers-reduced-motion: reduce) {
   .fun-item__media img, .fun-item__media video, .lab-card__cover img { transition: none; }

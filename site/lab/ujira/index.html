@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ujira: get paid in dollars, cash out to M-Pesa · Personal concept · Ted Thie</title>
+<meta name="description" content="A personal concept: a payouts app for Kenyans paid by foreign clients. Invoice in dollars, hold a dollar balance, and withdraw to M-Pesa or a bank with the fee, the rate and the shillings shown before every move.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/ujira/">
+<meta property="og:title" content="Ujira: get paid in dollars, cash out to M-Pesa">
+<meta property="og:description" content="The shillings that land, the fee and the rate before every withdrawal, and a split plan built around M-Pesa's limits. A personal concept by Ted Thie.">
+<meta property="og:url" content="https://tedthie.cc/lab/ujira/">
+<meta name="theme-color" content="#0D1B2A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&amp;family=Instrument+Sans:wght@400;600&amp;family=Inter:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="ujira.css">
+<script src="vendor/lottie_light.min.js" defer></script>
+<script src="data.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<div class="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <a class="concept__home" href="/fun#labs">More from the Lab</a>
+  <p class="concept__label"><strong>Ujira</strong> <span>Personal concept.<span class="concept__more"> All money, names, numbers and rates are invented, and nothing here moves real money or calls a real service.</span></span></p>
+  <div class="concept__view" role="group" aria-label="Show">
+    <span class="concept__view-label">Show</span>
+    <button type="button" data-view="app" aria-pressed="true">Wanjiru's app</button>
+    <button type="button" data-view="tom" aria-pressed="false">Tom's invoice page</button>
+  </div>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<div class="stage" id="stage">
+  <section class="stage__app" id="stage-app" aria-label="Wanjiru's app">
+    <div class="device" id="device">
+      <div class="uj" id="app">
+        <div class="statusbar" aria-hidden="true"><span>9:41</span><span class="statusbar__icons"></span></div>
+        <div class="screens" id="screens"><noscript><p class="noscript">This concept needs JavaScript to run.</p></noscript></div>
+        <div class="sheet-layer" id="sheet" hidden></div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <aside class="demo" id="demo" aria-labelledby="demo-title"></aside>
+  </section>
+  <section class="stage__tom" id="stage-tom" aria-label="Tom's invoice page" hidden></section>
+</div>
+
+</body>
+</html>

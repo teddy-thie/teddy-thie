@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kivuko · Daraja, reimagined: an M-Pesa developer portal built around the result · Unsolicited concept · Ted Thie</title>
+<meta name="description" content="Kivuko, an unsolicited redesign concept of Daraja, the M-Pesa developer portal: a test inbox, a failure simulator and a request log, so you see whether money moved, not just that a request was accepted. Not affiliated with Safaricom.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/daraja/">
+<meta property="og:title" content="Daraja, reimagined: an M-Pesa developer portal built around the result">
+<meta property="og:description" content="Accepted isn't paid. A test inbox, outcomes you can trigger, and a log that answers &ldquo;I paid, but it says unpaid.&rdquo; An unsolicited concept by Ted Thie, not affiliated with Safaricom.">
+<meta property="og:url" content="https://tedthie.cc/lab/daraja/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Roboto+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="daraja.css">
+<script src="data.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<div class="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <a class="concept__home" href="/fun#labs">More from the Lab</a>
+  <p class="concept__label"><strong>Daraja, reimagined</strong> <span>Kivuko is an unsolicited redesign concept by Ted Thie. Not affiliated with Safaricom.<span class="concept__more"> All keys, numbers and payments are invented, and nothing here calls a real API.</span></span></p>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<div class="dj" id="app">
+  <aside class="side" id="side" aria-label="Kivuko"></aside>
+  <div class="main">
+    <header class="top" id="top"></header>
+    <main class="content" id="view" tabindex="-1"><noscript><p class="noscript">This concept needs JavaScript to run.</p></noscript></main>
+  </div>
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+</body>
+</html>

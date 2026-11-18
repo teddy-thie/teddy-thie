@@ -1,4 +1,4 @@
-/* Daraja, reimagined · unsolicited concept on tedthie.cc
+/* Kivuko · Daraja, reimagined · unsolicited concept on tedthie.cc
    Not affiliated with Safaricom. Every reply below is scripted in the browser: nothing here
    calls Safaricom or any other API, and no key, phone number or payment is real. */
 (function () {
@@ -212,7 +212,7 @@
       }).join('');
     }).join('');
     $('#side').innerHTML =
-      '<div class="brand"><span class="brand__mark">' + bridge() + '</span><div><div class="brand__name">Daraja</div><div class="brand__sub">Developer portal · concept</div></div></div>' +
+      '<div class="brand"><span class="brand__mark">' + bridge() + '</span><div><div class="brand__name">Kivuko</div><div class="brand__sub">M-Pesa developer portal · concept</div></div></div>' +
       '<button type="button" class="appswitch" data-a="toast" data-arg="This concept has one test app.">' + '<div><div class="appswitch__name">kata-checkout ' + lab('fill', 'Sandbox') + '</div><div class="appswitch__apis">STK Push · C2B · B2C</div></div>' + ico('chevron-down') + '</button>' +
       '<div class="side__new"><a class="btn btn--primary btn--block" href="#/stk">' + ico('plus') + '<span>New test</span></a></div>' +
       '<nav class="nav" aria-label="Portal">' + nav + '</nav>' +
@@ -223,7 +223,8 @@
     $('#side').classList.toggle('is-open', !!S.ui.navOpen);
     $('#scrim').hidden = !S.ui.navOpen;
   }
-  function bridge() { return '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 13c2.5-5 13.5-5 16 0"/><path d="M1.5 13h17M5 10.2V13M10 8.9V13M15 10.2V13"/></svg>'; }
+  /* Kivuko ("crossing"): stepping stones over water, the concept's own mark. */
+  function bridge() { return '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><path d="M1.5 15.5c1.4-1.1 2.8-1.1 4.2 0s2.8 1.1 4.2 0 2.8-1.1 4.2 0 2.8 1.1 4.2 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="2.5" y="10" width="4" height="2.6" rx="1.3"/><rect x="8" y="6.7" width="4" height="2.6" rx="1.3"/><rect x="13.5" y="3.4" width="4" height="2.6" rx="1.3"/></svg>'; }
   function renderTop() {
     var t = TITLES[S.route] || TITLES['get-started'];
     $('#top').innerHTML =
@@ -864,7 +865,7 @@
     var page = PAGES[S.route] || PAGES['get-started'];
     $('#view').innerHTML = page();
     if (fid) { var el = document.getElementById(fid); if (el) { el.focus({ preventScroll: true }); try { if (ss != null) el.setSelectionRange(ss, se); } catch (e) { /* select */ } } }
-    document.title = (TITLES[S.route] || TITLES['get-started'])[1] + ' · Daraja, reimagined · Unsolicited concept · Ted Thie';
+    document.title = (TITLES[S.route] || TITLES['get-started'])[1] + ' · Kivuko · Daraja, reimagined · Unsolicited concept · Ted Thie';
     save();
   }
   function focusErr() { var el = document.querySelector('.field--invalid input, .field--invalid select'); if (el) el.focus(); }

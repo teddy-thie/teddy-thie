@@ -64,7 +64,7 @@ body { background: var(--night); display: flex; flex-direction: column; }
 .brand { display: flex; align-items: center; gap: 10px; padding: 16px 16px 12px; }
 .brand__mark { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-muted); display: grid; place-items: center; color: var(--accent); }
 .brand__name { font-weight: 600; font-size: 15px; line-height: 20px; }
-.brand__sub { font-size: 12px; line-height: 16px; color: var(--fg-muted); }
+.brand__sub { font-size: 11px; line-height: 16px; color: var(--fg-muted); white-space: nowrap; }
 .appswitch {
   margin: 0 12px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; width: calc(100% - 24px);
   border: 1px solid var(--line); border-radius: 8px; background: var(--bg); text-align: left; cursor: pointer;

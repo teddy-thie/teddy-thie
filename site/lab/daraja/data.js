@@ -1,5 +1,5 @@
-/* Daraja, reimagined · unsolicited concept on tedthie.cc
-   Not affiliated with Safaricom. Every key, phone number, ID and payment here is invented, and
+/* Kivuko · Daraja, reimagined · unsolicited concept on tedthie.cc
+   Kivuko is the concept's own name for the portal. Not affiliated with Safaricom. Every key, phone number, ID and payment here is invented, and
    nothing in this prototype calls Safaricom or any other API: every reply is scripted below.
    The result codes and payload shapes follow Daraja's public API docs (checked 18 Nov 2026),
    because handling them is the point of the concept. */

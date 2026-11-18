@@ -56,7 +56,44 @@
   };
   document.body.insertAdjacentHTML('afterbegin', `<svg width="0" height="0" style="position:absolute" aria-hidden="true">${Object.entries(ICONS).map(([k, v]) => `<symbol id="i-${k}" viewBox="0 0 24 24">${v}</symbol>`).join('')}</svg>`);
   const ico = (name, cls = '') => `<svg class="ico ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
-  const MARK = (size = 52) => `<svg width="${size}" height="${size}" viewBox="0 0 52 52" aria-hidden="true"><rect width="52" height="52" rx="14" fill="#1A73E8"/><path d="M15 22v4a11 11 0 0 0 22 0v-4" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="26" cy="14" r="4.5" fill="#2BC48A"/></svg>`;
+  // The Ujira mark from the Lab logomarks set (120-unit grid): an open bowl with a coin in it.
+  const MARK = (size = 52) => `<svg width="${size}" height="${size}" viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" rx="30" fill="#1A73E8"/><path d="M34 26V64C34 78.36 45.64 90 60 90C74.36 90 86 78.36 86 64V26" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="61" r="13" fill="#2BC48A"/></svg>`;
+
+  /* ---------- motion (Lottie) ---------- */
+  // Three Lottie files, all the same move: the coin drops into the bowl. With reduced motion they show their last frame.
+  const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MOTION = {};
+  const motionReady = Promise.all(['mark', 'landing', 'received'].map(n =>
+    fetch(`motion/ujira-${n}.json`).then(r => (r.ok ? r.json() : null)).then(d => { MOTION[n] = d; }).catch(() => {})));
+  function mountMotion(root) {
+    if (!window.lottie) return;
+    root.querySelectorAll('[data-lottie]:not([data-mounted])').forEach(el => {
+      const src = MOTION[el.dataset.lottie];
+      if (!src) return;
+      const data = JSON.parse(JSON.stringify(src));
+      if (el.dataset.coins === '1') data.layers = data.layers.filter(l => l.nm !== 'coin-2');
+      el.dataset.mounted = '1';
+      el.innerHTML = '';
+      const play = el.dataset.play === '1' && !REDUCED;
+      const a = window.lottie.loadAnimation({ container: el, renderer: 'svg', loop: false, autoplay: play, animationData: data, rendererSettings: { preserveAspectRatio: 'xMidYMid meet' } });
+      if (!play) a.addEventListener('DOMLoaded', () => a.goToAndStop(data.op - 1, true));
+      el._anim = a;
+    });
+  }
+  let splashDone = false;
+  function splash() {
+    if (splashDone || REDUCED || !window.lottie || !MOTION.mark) { splashDone = true; return; }
+    splashDone = true;
+    app.insertAdjacentHTML('beforeend', '<div class="splash" aria-hidden="true"><span class="splash__mark" data-lottie="mark" data-play="1"></span><span class="splash__word">ujira</span></div>');
+    const sp = app.querySelector('.splash');
+    mountMotion(sp);
+    let gone = false;
+    const out = () => { if (gone) return; gone = true; sp.classList.add('is-out'); setTimeout(() => sp.remove(), 400); };
+    const a = sp.querySelector('[data-lottie]')._anim;
+    // Leave once the coin has settled (frame 56), not at the end of the held tail.
+    if (a) a.addEventListener('enterFrame', () => { if (a.currentFrame >= 56) out(); }); else out();
+    setTimeout(out, 3500);
+  }
   document.querySelector('.statusbar__icons').innerHTML = '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" width="3" height="12" rx="1"/></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l1.1-1.2A10.2 10.2 0 0 0 8 .9 10.2 10.2 0 0 0 .9 3.7L2 4.9a8.6 8.6 0 0 1 6-2.4zm0 3.3c1.4 0 2.6.5 3.6 1.4l1.1-1.2A6.9 6.9 0 0 0 8 4.2c-1.8 0-3.5.7-4.7 1.8l1.1 1.2c1-.9 2.2-1.4 3.6-1.4zM8 9a2 2 0 0 0-1.4.6L8 11.1l1.4-1.5A2 2 0 0 0 8 9z"/></svg><svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2" fill="currentColor"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2z" fill="currentColor" opacity=".5"/></svg>';
 
   /* ---------- state ---------- */
@@ -121,6 +158,7 @@
     app.classList.toggle('is-dark', !!s.dark);
     app.classList.toggle('is-dark-bottom', !!s.darkBottom);
     screensEl.innerHTML = `<div class="screen ${s.cls || ''} ${focus ? 'is-entering' : ''}" data-screen="${t.name}" tabindex="-1">${s.html}</div>${s.tabs ? tabbar(s.tabs) : ''}`;
+    mountMotion(screensEl);
     if (focus) { const h = screensEl.querySelector('h1'); (h || screensEl.firstElementChild).setAttribute('tabindex', '-1'); (h || screensEl.firstElementChild).focus({ preventScroll: true }); }
   }
   function tabbar(active) {
@@ -158,7 +196,7 @@
     welcome() {
       return { dark: true, darkBottom: true, cls: 'screen--welcome', html: `
         <div class="welcome">
-          ${MARK(52)}
+          <span class="lottie lottie--mark" data-lottie="mark" data-play="1">${MARK(52)}</span>
           <div class="promo" aria-hidden="true">
             <div class="promo__card promo__card--a"><span class="circle circle--green">${ico('in')}</span><span><p class="t-foot on-hero-muted">Lumen Studio paid you</p><p class="t-m on-hero">+$3,000.00</p></span></div>
             <div class="promo__card promo__card--b"><span class="circle">${ico('phone')}</span><span><p class="t-foot muted">To your M-Pesa</p><p class="t-m">KSh 387,751</p></span></div>
@@ -258,7 +296,7 @@
 
     result({ id }) {
       const r = record(id);
-      const legsHtml = r.legs.map((l, i) => `<li class="leg"><span class="circle ${l.status === 'arrived' ? 'circle--green' : 'circle--crit'}">${ico(l.status === 'arrived' ? 'check' : 'close', 'ico--s')}</span>
+      const legsHtml = r.legs.map((l, i) => `<li class="leg" style="--d:${[0.73, 1.13][i] || 1.13 + i * 0.3}s"><span class="circle ${l.status === 'arrived' ? 'circle--green' : 'circle--crit'}">${ico(l.status === 'arrived' ? 'check' : 'close', 'ico--s')}</span>
         <span class="grow"><p class="t-em">${r.legs.length > 1 ? `Payment ${i + 1} of ${r.legs.length} · ` : ''}${ksh(l.amount)}</p><p class="t-foot ${l.status === 'arrived' ? 'muted' : 'crit'}">${l.status === 'arrived' ? `Arrived ${l.time} · ${l.ref}` : `${r.dest === 'mpesa' ? 'M-Pesa' : 'The bank'} declined it · ${l.time.slice(0, 5)}`}</p></span></li>`).join('');
       const toLine = r.dest === 'mpesa' ? D.me.phone : D.me.bank;
       const closeBtn = `<button type="button" class="icon-btn close-tr" data-a="home" aria-label="Close">${ico('close')}</button>`;
@@ -289,9 +327,11 @@
           </div></div>
           <div class="actions" style="padding-top:24px"><button type="button" class="btn btn--primary" data-a="retry-bank" data-usd="${r.refund}">Send the rest to my bank</button><button type="button" class="btn btn--secondary" data-a="home">Keep it in dollars</button></div>` };
       }
-      return { cls: 'screen--hero', html: `<div class="result-top result-top--pos">${closeBtn}<span class="circle" style="background:var(--navy);color:#fff">${ico('check', 'ico--l')}</span>
+      const landing = r.fresh && !REDUCED;
+      const arrived = r.legs.filter(l => l.status === 'arrived').length;
+      return { cls: 'screen--hero', html: `<div class="result-top result-top--pos">${closeBtn}<span class="lottie lottie--disc" data-lottie="landing" data-coins="${Math.min(arrived, 2)}" data-play="${landing ? 1 : 0}"><span class="circle" style="background:var(--navy);color:#fff;width:72px;height:72px">${ico('check', 'ico--l')}</span></span>
           <h1 class="t-title-m">Sent to your ${r.dest === 'mpesa' ? 'M-Pesa' : 'bank'}</h1><p class="t-l">${bigKsh(r.net)}</p><p class="t-foot">${fmtDate(r.date)} · ${r.time} · ${toLine}</p></div>
-        <div style="margin:-40px 24px 0;position:relative"><div class="card card--shadow"><ul class="legs">${legsHtml}</ul></div>
+        <div style="margin:-40px 24px 0;position:relative"><div class="card card--shadow"><ul class="legs ${landing ? 'is-landing' : ''}">${legsHtml}</ul></div>
           <div class="card" style="margin-top:14px"><div class="qrow"><span>You sent</span><span>${money(r.usd)}</span></div><div class="qrow"><span>Rate (demo)</span><span>$1 = KSh ${r.rate.toFixed(2)}</span></div><div class="qrow"><span>Fee (0.5%)</span><span>${ksh(r.fee)}</span></div>
             <div class="divider"></div><div class="qrow" style="align-items:center"><span>Dollars left</span><span class="t-m">${bigUsd(r.balanceAfter)}</span></div></div></div>
         <div class="actions" style="padding-top:24px"><button type="button" class="btn btn--primary" data-a="home">Done</button><button type="button" class="btn btn--secondary" data-a="toast" data-msg="Receipt shared (demo)">${ico('share')}Share receipt</button></div>` };
@@ -339,7 +379,7 @@
       const sp = r.split;
       return { dark: true, cls: 'screen--hero', html: `
         <div class="result-top result-top--hero is-hero" style="padding-bottom:72px"><button type="button" class="icon-btn icon-btn--hero close-tr" data-a="home" aria-label="Close">${ico('close')}</button>
-          <span class="circle circle--green">${ico('check', 'ico--l')}</span>
+          <span class="lottie lottie--burst" data-lottie="received" data-play="${r.fresh && !REDUCED ? 1 : 0}"><span class="circle circle--green" style="width:72px;height:72px">${ico('check', 'ico--l')}</span></span>
           <h1 class="t-title-m">Payment received</h1><p class="t-xl">+${bigUsd(r.usd)}</p>
           <p class="t-foot on-hero-muted">From ${D.client.name} · ${r.no}</p>
           <span class="tag" style="background:var(--navy-raised);color:#fff;height:26px;margin-top:6px">${when(r.date, r.time)}${sp ? ' · Auto-split on' : ''}</span></div>
@@ -594,7 +634,7 @@
     const delivered = legs.filter(l => l.status === 'arrived').reduce((s, l) => s + l.amount, 0);
     S.usd = round2(S.usd - q.usd + refund);
     if (q.dest === 'mpesa') S.sentToday += delivered;
-    const rec = { id: 'w' + (uid++), kind: 'out', dest: q.dest, title: q.dest === 'mpesa' ? 'To M-Pesa' : 'To bank', usd: q.usd, refund, date: today(), time: t, rate: q.rate, gross: q.gross, fee: q.fee, net: q.net, legs, outcome, balanceAfter: S.usd };
+    const rec = { id: 'w' + (uid++), kind: 'out', dest: q.dest, title: q.dest === 'mpesa' ? 'To M-Pesa' : 'To bank', usd: q.usd, refund, date: today(), time: t, rate: q.rate, gross: q.gross, fee: q.fee, net: q.net, legs, outcome, balanceAfter: S.usd, fresh: true };
     S.activity.unshift(rec);
     if (legs.length > 1) track('withdrawal_split', { payments: legs.length, ksh: q.net });
     if (outcome !== 'ok') track('withdrawal_failed', { outcome, refunded_usd: refund });
@@ -602,6 +642,7 @@
     closeSheet(true);
     nav = [{ name: 'home', p: {} }, { name: 'result', p: { id: rec.id } }];
     render(true); renderDemo();
+    rec.fresh = false;
   }
 
   /* ---------- money in ---------- */
@@ -631,9 +672,11 @@
       }
     }
     rec.balanceAfter = S.usd;
+    rec.fresh = view === 'app';
     track('invoice_paid', { usd: inv.usd, auto_split: !!rec.split });
     nav = [{ name: 'home', p: {} }, { name: 'received', p: { id: rec.id } }];
     render(); renderDemo();
+    if (view === 'app') rec.fresh = false; else pendingFresh = rec;
     return rec;
   }
 
@@ -803,11 +846,13 @@
   });
 
   /* ---------- view switch ---------- */
+  let pendingFresh = null;
   function setView(v) {
     view = v;
+    if (v === 'app' && pendingFresh) { pendingFresh.fresh = true; }
     document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
     appStage.hidden = v !== 'app'; tomEl.hidden = v !== 'tom';
-    if (v === 'tom') renderTom(); else { render(); fit(); }
+    if (v === 'tom') renderTom(); else { render(); fit(); if (pendingFresh) { pendingFresh.fresh = false; pendingFresh = null; } }
     document.getElementById('stage').scrollTop = 0;
   }
   document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
@@ -855,4 +900,5 @@
 
   reset(false);
   fit();
+  motionReady.then(() => { mountMotion(screensEl); splash(); });
 })();

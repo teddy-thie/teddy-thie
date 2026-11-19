@@ -345,4 +345,17 @@ body { background: var(--night); display: flex; flex-direction: column; }
   .spin, .file.is-reading .circle svg { animation-duration: 3s; }
   .btn, .ns-toast, .prog__segs i { transition: none; }
 }
+/* Motion: Lottie containers (splash, scoring loop, limit burst) */
+.ns-lottie svg { display: block; }
+.scr--splash .scr__in { justify-content: space-between; }
+.splash { flex: 1; display: grid; place-items: center; padding-bottom: 48px; }
+.ns-lottie--splash { width: 320px; height: 120px; }
+.splash__still { display: inline-flex; align-items: center; gap: 16px; font-size: 36px; line-height: 48px; font-weight: 500; letter-spacing: -.6px; color: #fff; }
+.splash__still svg { width: 56px; height: 56px; color: var(--blue-soft); }
+.splash__still b { font-weight: 500; color: var(--blue-soft); }
+.ns-lottie--wait { width: 168px; height: 168px; margin-bottom: 8px; }
+.limit { position: relative; overflow: hidden; isolation: isolate; }
+.limit > :not(.limit__fx) { position: relative; z-index: 1; }
+.limit__fx { position: absolute; z-index: 0; width: 400px; height: 400px; left: 50%; top: 118px; transform: translate(-50%, -50%); pointer-events: none; }
+.limit__fig { font-variant-numeric: tabular-nums; }
 /* tokens:skip-end */

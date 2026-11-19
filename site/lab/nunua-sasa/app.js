@@ -31,8 +31,9 @@
   const later = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
   function clearTimers() { timers.forEach(clearTimeout); timers = []; }
 
-  function fresh(version) {
-    return { version, screen: version === 'control' ? 'c1' : 'v1', stack: [], enteredAt: Date.now(),
+  function fresh(version, withSplash) {
+    const first = version === 'control' ? 'c1' : 'v1';
+    return { version, first, screen: withSplash ? 'splash' : first, stack: [], enteredAt: Date.now(),
       up: { statement: null, front: false, back: false }, tries: 0,
       details: { name: NAME_STATEMENT, dob: '12/03/1996', email: 'achieng@example.com' }, idNumber: '', nameOnForm: NAME_STATEMENT,
       choice: 'pay', busy: false };
@@ -65,6 +66,42 @@
   let toastTimer;
   function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('on'), 3200); }
 
+  /* ---------- Motion (Lottie) ----------
+     Three animations, the same in both versions so the test still measures only the order:
+     the splash, the scoring loop, and a ring burst behind the limit. Reduced motion gets still frames. */
+  const REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const HAS_LOTTIE = !!window.lottie;
+  const MOTION = {};
+  ['splash', 'scoring', 'burst'].forEach(n => { MOTION[n] = fetch('motion/' + n + '.json').then(r => (r.ok ? r.json() : null)).catch(() => null); });
+  let live = [];
+  function stopMotion() { live.forEach(a => a.destroy()); live = []; }
+  function mountMotion(entering) {
+    screensEl.querySelectorAll('[data-lottie]').forEach(el => {
+      const name = el.dataset.lottie;
+      if (name === 'burst' && (!entering || REDUCE)) return;
+      MOTION[name].then(data => {
+        if (!data || !window.lottie || !el.isConnected) return;
+        const a = window.lottie.loadAnimation({ container: el, renderer: 'svg', loop: name === 'scoring', autoplay: !REDUCE,
+          animationData: JSON.parse(JSON.stringify(data)), rendererSettings: { preserveAspectRatio: 'xMidYMid meet' } });
+        live.push(a); el.classList.add('is-live');
+        if (REDUCE) a.addEventListener('DOMLoaded', () => a.goToAndStop(name === 'splash' ? data.op - 1 : 0, true));
+      });
+    });
+  }
+  function countUp() {
+    const card = screensEl.querySelector('.limit'), el = card && card.querySelector('.limit__fig');
+    if (!el || REDUCE) return;
+    const end = limitAmount(), t0 = performance.now(), dur = 1100;
+    card.classList.add('is-counting'); el.textContent = '0';
+    const tick = now => {
+      if (!el.isConnected) return;
+      const p = Math.min(1, (now - t0) / dur);
+      el.textContent = ksh(p >= 1 ? end : Math.round(end * (1 - Math.pow(2, -10 * p)) / 100) * 100);
+      if (p < 1) requestAnimationFrame(tick); else card.classList.remove('is-counting');
+    };
+    requestAnimationFrame(tick);
+  }
+
   /* ---------- Building blocks ---------- */
   const btn = (label, a, dark, disabled) => `<button type="button" class="btn ${dark ? 'btn--dark' : 'btn--light'}" data-a="${a}"${disabled ? ' disabled' : ''}><span>${label}</span><span class="btn__go">${goIcon}</span></button>`;
   const textBtn = (label, a) => `<button type="button" class="btn-text" data-a="${a}">${label}</button>`;
@@ -92,8 +129,8 @@
   function step(status, n, t, b, time) {
     return `<div class="step is-${status}"><span class="step__n">${status === 'done' ? ic('check_circle') : n}</span><span class="step__txt"><span class="step__t">${t}</span><span class="step__b">${b}</span></span><span class="step__time">${time}</span></div>`;
   }
-  function limitCard(provisional, amount, list, noteText) {
-    return `<div class="limit"><div class="limit__top"><span class="chip ${provisional ? 'chip--outline' : 'chip--accent'}">${provisional ? 'Provisional' : 'Ready to use'}</span><span class="limit__note">${noteText}</span></div>
+  function limitCard(provisional, amount, list, noteText, fx) {
+    return `<div class="limit">${fx ? '<div class="limit__fx" data-lottie="burst" aria-hidden="true"></div>' : ''}<div class="limit__top"><span class="chip ${provisional ? 'chip--outline' : 'chip--accent'}">${provisional ? 'Provisional' : 'Ready to use'}</span><span class="limit__note">${noteText}</span></div>
       <p class="limit__label">You can spend up to</p><p class="limit__amt"><span class="limit__ccy">KSh</span><span class="limit__fig">${ksh(amount)}</span></p>
       <dl>${list.map(([l, v]) => `<div><dt>${l}</dt><dd>${v}</dd></div>`).join('')}</dl></div>`;
   }
@@ -114,6 +151,7 @@
     actions: btn(S.busy ? 'Checking your number…' : 'Continue', 'phone', false, S.busy) });
 
   const SCREENS = {
+    splash: () => `<div class="scr scr--dark scr--splash"><div class="scr__in"><div class="splash"><div class="ns-lottie ns-lottie--splash" data-lottie="splash" aria-hidden="true"></div>${HAS_LOTTIE ? '' : `<p class="splash__still" aria-hidden="true">${LOGO}<span>nunua <b>sasa</b></span></p>`}<p class="sr-only">Nunua Sasa</p></div><div class="ns-gesture ns-gesture--dark"></div></div></div>`,
     c1: () => phone([1, 5]),
     c2: () => frame({ step: [2, 5], title: 'Tell us about yourself',
       body: field({ key: 'name', label: 'Full name', value: S.details.name }) + field({ key: 'dob', label: 'Date of birth', value: S.details.dob, inputmode: 'numeric' }) + field({ key: 'email', label: 'Email', value: S.details.email }),
@@ -123,9 +161,9 @@
       actions: btn('Continue', 'next', false, !(S.up.front && S.up.back)) }),
     c4: () => frame({ step: [4, 5], title: 'Upload your M-Pesa statement', sub: 'A PDF of the last 6 months.',
       body: fileTile() + statementNote(), actions: btn('Continue', 'score', false, !statementOk()) }),
-    c5: () => frame({ dark: true, back: false, step: [5, 5], body: `<div class="wait" role="status"><span class="spin" aria-hidden="true"></span><p class="wait__t">Checking your statement</p><p class="wait__b">This can take up to 2 minutes.</p></div>` }),
+    c5: () => frame({ dark: true, back: false, step: [5, 5], body: `<div class="wait" role="status">${HAS_LOTTIE ? '<div class="ns-lottie ns-lottie--wait" data-lottie="scoring" aria-hidden="true"></div>' : '<span class="spin" aria-hidden="true"></span>'}<p class="wait__t">Checking your statement</p><p class="wait__b">This can take up to 2 minutes.</p></div>` }),
     c6: () => frame({ dark: true, title: 'Your limit is ready',
-      body: limitCard(false, limitAmount(), [['Pay it back', '3 monthly payments'], ['Use it at', 'Any partner shop']], 'Confirmed today'),
+      body: limitCard(false, limitAmount(), [['Pay it back', '3 monthly payments'], ['Use it at', 'Any partner shop']], 'Confirmed today', true),
       actions: btn('Start shopping', 'shop', true) }),
 
     v1: () => phone(null),
@@ -139,9 +177,9 @@
       body: fileTile() + statementNote() + (S.up.statement === 'old' || S.up.statement === 'bank' ? '' : why('lock', 'Only our scoring system reads it. We delete it after 12 months.')) +
         why('description', 'In the M-Pesa app: Statements, then the last 6 months, then download the PDF.'),
       actions: btn('Continue', 'score', false, !statementOk()) }),
-    vw: () => frame({ dark: true, back: false, step: [2, 3], body: `<div class="wait" role="status"><span class="spin" aria-hidden="true"></span><p class="wait__t">Working out your limit</p><p class="wait__b">Usually under a minute.</p></div>` }),
+    vw: () => frame({ dark: true, back: false, step: [2, 3], body: `<div class="wait" role="status">${HAS_LOTTIE ? '<div class="ns-lottie ns-lottie--wait" data-lottie="scoring" aria-hidden="true"></div>' : '<span class="spin" aria-hidden="true"></span>'}<p class="wait__t">Working out your limit</p><p class="wait__b">Usually under a minute.</p></div>` }),
     v4: () => frame({ dark: true, step: [2, 3], title: `Good news,<br>${esc(firstName())}`,
-      body: limitCard(true, limitAmount(), [['Pay it back', '3 monthly payments'], ['Use it at', 'Any partner shop'], ['To unlock it', 'Confirm your ID · 2 min']], 'Saved for 7 days') +
+      body: limitCard(true, limitAmount(), [['Pay it back', '3 monthly payments'], ['Use it at', 'Any partner shop'], ['To unlock it', 'Confirm your ID · 2 min']], 'Saved for 7 days', true) +
         why('verified_user', "We have to check your ID before we lend. It's the only step left."),
       actions: btn("Confirm it's me", 'next', true) + textBtn('Not now, save my limit', 'save') }),
     vs: () => frame({ dark: true, back: false, title: 'Saved until<br>26 November', sub: "You can close the app. We'll text you a link back to this step.",
@@ -182,11 +220,11 @@
   /* ---------- Navigation ---------- */
   function go(id, o = {}) {
     const from = S.screen;
-    if (from && from !== id) track('step_completed', { step: STEP[from], seconds: Math.max(1, Math.round((Date.now() - S.enteredAt) / 1000)) });
+    if (from && from !== id && STEP[from]) track('step_completed', { step: STEP[from], seconds: Math.max(1, Math.round((Date.now() - S.enteredAt) / 1000)) });
     if (o.push !== false && from) S.stack.push(from);
     if (o.replace) S.stack.pop();
     S.screen = id; S.enteredAt = Date.now(); S.busy = false;
-    track('step_viewed', { step: STEP[id] });
+    if (STEP[id]) track('step_viewed', { step: STEP[id] });
     render(true);
   }
   function back() {
@@ -202,7 +240,11 @@
     if (entering) { clearTimeout(toastTimer); toastEl.classList.remove('on'); }
     const ae = document.activeElement;
     const keep = !entering && ae && screensEl.contains(ae) ? (ae.dataset.a ? `[data-a="${ae.dataset.a}"]` : ae.dataset.f ? `[data-f="${ae.dataset.f}"]` : null) : null;
+    stopMotion();
     screensEl.innerHTML = SCREENS[S.screen]();
+    mountMotion(entering);
+    if (S.screen === 'splash') later(() => { if (S.screen === 'splash') go(S.first, { push: false }); }, REDUCE ? 900 : 2300);
+    if (entering && (S.screen === 'v4' || S.screen === 'c6')) countUp();
     if (keep) { const el = screensEl.querySelector(keep); if (el) el.focus({ preventScroll: true }); }
     const scr = screensEl.firstElementChild;
     if (entering && scr) {
@@ -419,16 +461,16 @@
     if (!S || S.version !== v) reset(v);
     fit();
   }
-  function reset(version) {
+  function reset(version, withSplash) {
     clearTimers(); closeSheet(); notifEl.hidden = true; notifEl.innerHTML = '';
-    S = fresh(version || S.version);
+    S = fresh(version || S.version, withSplash);
     track('onboarding_started');
-    track('step_viewed', { step: STEP[S.screen] });
+    if (STEP[S.screen]) track('step_viewed', { step: STEP[S.screen] });
     render(true);
   }
   conceptBar.addEventListener('click', e => {
     const b = e.target.closest('[data-view]'); if (b) return setView(b.dataset.view);
-    if (e.target.closest('[data-reset]')) { events = []; if (view === 'experiment') { setView('variant'); } reset(view === 'experiment' ? 'variant' : view); toast('Demo reset'); }
+    if (e.target.closest('[data-reset]')) { events = []; if (view === 'experiment') { setView('variant'); } reset(view === 'experiment' ? 'variant' : view, true); toast('Demo reset'); }
   });
 
   /* ---------- Fit the phone to the window ---------- */
@@ -442,11 +484,11 @@
   window.addEventListener('resize', fit);
 
   const start = new URLSearchParams(location.search).get('v');
-  S = fresh(start === 'control' ? 'control' : 'variant');
+  S = fresh(start === 'control' ? 'control' : 'variant', start !== 'experiment');
   view = S.version;
   setView(start === 'experiment' ? 'experiment' : S.version);
   track('onboarding_started');
-  track('step_viewed', { step: STEP[S.screen] });
-  render(false);
+  if (STEP[S.screen]) track('step_viewed', { step: STEP[S.screen] });
+  render(true);
   fit();
 })();

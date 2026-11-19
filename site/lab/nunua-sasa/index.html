@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>Nunua Sasa, Remastered: an onboarding A/B test · Personal concept · Ted Thie</title>
+<meta name="description" content="A personal concept: the sign-up for a buy-now-pay-later app, designed as an experiment. The control asks for the National ID third; the variant shows the spending limit first and asks for the ID to unlock it.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/nunua-sasa/">
+<meta property="og:title" content="Nunua Sasa, Remastered: show the limit before asking for the ID">
+<meta property="og:description" content="Two versions of a BNPL sign-up, the experiment brief, and a sample-size calculator. A personal concept by Ted Thie.">
+<meta property="og:url" content="https://tedthie.cc/lab/nunua-sasa/">
+<meta name="theme-color" content="#0B1628">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500&amp;family=Instrument+Sans:wght@400;600&amp;family=Hanken+Grotesk:wght@500;600&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="nunua.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<div class="concept" id="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <a class="concept__home" href="/fun#labs">More from the Lab</a>
+  <p class="concept__label"><strong>Nunua Sasa, Remastered</strong> <span>Personal concept.<span class="concept__more"> Based on my 2019–22 design work, not Revolution Analytics work. Every name, number and rate is invented.</span></span></p>
+  <div class="concept__view" role="group" aria-label="Show">
+    <span class="concept__view-label">Show</span>
+    <button type="button" data-view="control" aria-pressed="false">Control</button>
+    <button type="button" data-view="variant" aria-pressed="true">Variant</button>
+    <button type="button" data-view="experiment" aria-pressed="false">The experiment</button>
+  </div>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<div class="stage" id="stage">
+  <section class="stage__app" id="stage-app" aria-label="The sign-up">
+    <div class="device" id="device">
+      <div class="ns" id="app">
+        <div class="ns-status" aria-hidden="true"><span>9:30</span><span class="ns-status__cam"></span><span class="ns-status__icons"></span></div>
+        <div class="ns-screens" id="screens"><noscript><p class="noscript">This concept needs JavaScript to run.</p></noscript></div>
+        <div class="ns-notif" id="notif" hidden></div>
+        <div class="ns-sheet-layer" id="sheet" hidden></div>
+        <div class="ns-toast" id="toast" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+    <aside class="demo" id="demo" aria-labelledby="demo-title"></aside>
+  </section>
+  <section class="stage__exp" id="stage-exp" aria-label="The experiment" hidden></section>
+</div>
+
+</body>
+</html>

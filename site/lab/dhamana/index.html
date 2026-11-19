@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>Dhamana: buy a used phone with the money held until you've checked it · Personal concept · Ted Thie</title>
+<meta name="description" content="A personal concept: a used-phone marketplace where the buyer's money waits in escrow until they've checked the phone. Both phones side by side, with the sale timeline in the middle, including a dispute and a no-show.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/dhamana/">
+<meta property="og:title" content="Dhamana: the money waits until the phone is checked">
+<meta property="og:description" content="A used-phone sale from both sides: the buyer's phone, the seller's phone and where the money is at every step. A personal concept by Ted Thie.">
+<meta property="og:url" content="https://tedthie.cc/lab/dhamana/">
+<meta name="theme-color" content="#15161A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600&amp;family=Instrument+Sans:wght@400;600&amp;family=Hanken+Grotesk:wght@500;600&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="dhamana.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<div class="concept" id="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <a class="concept__home" href="/fun#labs">More from the Lab</a>
+  <p class="concept__label"><strong>Dhamana</strong> <span>Personal concept.<span class="concept__more"> Every name, number, phone and the payment partner are invented. No real money moves.</span></span></p>
+  <div class="concept__view" role="group" aria-label="Show">
+    <span class="concept__view-label">Show</span>
+    <button type="button" data-show="both" aria-pressed="true">Both phones</button>
+    <button type="button" data-show="buyer" aria-pressed="false">Wanjiku</button>
+    <button type="button" data-show="seller" aria-pressed="false">Brian</button>
+  </div>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<main class="stage" id="stage" data-show="both">
+  <h1 class="sr-only">Dhamana: a used-phone sale with the money held in escrow, shown from both phones</h1>
+  <section class="side side--buyer" aria-labelledby="buyer-label">
+    <p class="side__label" id="buyer-label"><b>Wanjiku</b> is buying</p>
+    <div class="device">
+      <div class="dh" id="buyer" data-who="buyer">
+        <div class="dh-status" aria-hidden="true"><span>9:30</span><span class="dh-status__cam"></span><span class="dh-status__icons"></span></div>
+        <div class="dh-screens"><noscript><p class="noscript">This concept needs JavaScript to run.</p></noscript></div>
+        <div class="dh-notif" hidden></div>
+        <div class="dh-sheet-layer" hidden></div>
+        <div class="dh-toast" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="sale" id="sale" aria-labelledby="sale-title"></aside>
+
+  <section class="side side--seller" aria-labelledby="seller-label">
+    <p class="side__label" id="seller-label"><b>Brian</b> is selling</p>
+    <div class="device">
+      <div class="dh" id="seller" data-who="seller">
+        <div class="dh-status" aria-hidden="true"><span>9:30</span><span class="dh-status__cam"></span><span class="dh-status__icons"></span></div>
+        <div class="dh-screens"></div>
+        <div class="dh-notif" hidden></div>
+        <div class="dh-sheet-layer" hidden></div>
+        <div class="dh-toast" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

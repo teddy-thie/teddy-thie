@@ -1222,12 +1222,15 @@
     if (saved) attempt(saved, true);
   }
 
-  /* ---------- Avatar eyes follow the pointer (Home, About) ----------
+  /* ---------- Avatar eyes follow the pointer (Home, About, Fun; mouse only) ----------
      The avatar loads as an <img>; when the page is served over http(s) it is swapped
      for the same SVG inline, with each pupil clipped to its eye so it can move. */
   function initEyes() {
     var img = document.querySelector('img.avatar');
     if (!img || reduceMotion || !window.fetch || !window.DOMParser || location.protocol === 'file:') return;
+    /* Mouse only: on phones the eyes have nothing to follow, and an inline SVG gets recoloured by
+       browsers that force their own dark mode (Samsung Internet), while an <img> is left alone. */
+    if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     fetch(img.getAttribute('src'))
       .then(function (r) { return r.ok ? r.text() : Promise.reject(new Error('avatar')); })
       .then(function (txt) {

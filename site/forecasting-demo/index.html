@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f0f12">
+<title>Prototype under NDA · Ted Thie</title>
+<meta name="description" content="A coded prototype under NDA. Ask Ted Thie for the password.">
+<link rel="icon" href="../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/geist-mono.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="mm.css">
+<script src="app.js" defer></script>
+<script src="gate.js" defer></script>
+</head>
+<body>
+<div id="mm"></div>
+<section id="gate" class="gate" hidden>
+  <div class="card gate__card">
+    <div class="eyebrow">Coded prototype · Under NDA</div>
+    <h1 class="h-display" style="margin-top:8px">A forecasting tournament, built to click through.</h1>
+    <p class="lede" style="margin-top:12px">This is a working version of a product I designed for AmplifyME and its banking clients, so it sits behind the same password as the case study.</p>
+    <form novalidate>
+      <label class="q-label" for="gate-password">Password</label>
+      <div class="field"><input id="gate-password" type="password" autocomplete="current-password" spellcheck="false"></div>
+      <button class="btn btn--primary" type="submit">Open the prototype</button>
+      <p class="gate__msg" data-gate-msg role="status" aria-live="polite"></p>
+    </form>
+    <a class="gate__back" href="../forecasting">← Back to the case study</a>
+  </div>
+</section>
+</body>
+</html>

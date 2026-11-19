@@ -193,6 +193,8 @@ body { background: var(--night); display: flex; flex-direction: column; }
 .prog__segs i.on { background: var(--blue); }
 .prog__label { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .2px; color: var(--muted-dark); }
 .t-display { font-size: 34px; line-height: 40px; letter-spacing: -.5px; font-weight: 400; margin-top: 4px; }
+/* Headings take focus on each new screen so screen readers start there; they are not controls, so no ring */
+.ns h1[tabindex="-1"]:focus { outline: none; }
 .t-sub { font-size: 16px; line-height: 24px; color: var(--muted-dark); }
 .sheet { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; background: var(--sheet); border-radius: 28px 28px 0 0; padding: 28px 24px 0; overflow: auto; scrollbar-width: none; }
 .sheet::-webkit-scrollbar, .scr--dark .head::-webkit-scrollbar { display: none; }

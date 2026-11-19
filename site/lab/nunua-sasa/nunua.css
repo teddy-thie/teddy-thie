@@ -163,7 +163,7 @@ body { background: var(--night); display: flex; flex-direction: column; }
 .ns-status__cam { position: absolute; left: 50%; top: 12px; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #000; box-shadow: 0 0 0 2px #1b1f26; }
 .ns-status__icons { display: flex; gap: 6px; align-items: center; }
 .ns-status__icons svg { display: block; fill: currentColor; }
-.ns-gesture { flex: none; height: 24px; display: flex; align-items: center; justify-content: center; }
+.ns-gesture { flex: none; height: 48px; display: flex; align-items: center; justify-content: center; }
 .ns-gesture::after { content: ''; width: 108px; height: 4px; border-radius: 2px; background: var(--ink); }
 .ns-gesture--dark::after { background: #fff; }
 
@@ -174,12 +174,14 @@ body { background: var(--night); display: flex; flex-direction: column; }
 @keyframes ns-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 .scr__in { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .head { flex: none; display: flex; flex-direction: column; gap: 16px; padding: 8px 24px 28px; color: #fff; }
-.scr--dark .head { flex: 1; min-height: 0; padding-bottom: 8px; overflow: auto; scrollbar-width: none; }
+.scr--dark .head { flex: 1; min-height: 0; padding-bottom: 12px; overflow: auto; scrollbar-width: none; }
 .top { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
 .back { width: 44px; height: 44px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--line-dark); display: grid; place-items: center; color: #fff; }
 .back svg { width: 20px; height: 20px; fill: currentColor; }
 .back[hidden] { display: grid !important; visibility: hidden; }
-.mark { font-size: 18px; line-height: 24px; font-weight: 500; letter-spacing: -.3px; }
+.mark { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; line-height: 24px; font-weight: 500; letter-spacing: -.3px; color: #fff; }
+.mark__bag { flex: none; color: var(--blue-soft); }
+.mark b { font-weight: 500; color: var(--blue-soft); }
 .chip { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 14px; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .2px; }
 .chip--accent { background: var(--blue); color: var(--ink); }
 .chip--outline { box-shadow: inset 0 0 0 1px var(--blue-soft); color: var(--blue-soft); }

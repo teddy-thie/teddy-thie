@@ -101,7 +101,7 @@
   const firstName = () => (S.details.name.trim().split(/\s+/)[0] || 'there');
 
   function frame(o) {
-    const top = `<div class="top"><button type="button" class="back" data-a="back" aria-label="Back"${o.back === false ? ' hidden' : ''}>${ic('arrow_back')}</button>${o.right || '<span class="mark" aria-hidden="true">nunua sasa</span>'}</div>`;
+    const top = `<div class="top"><button type="button" class="back" data-a="back" aria-label="Back"${o.back === false ? ' hidden' : ''}>${ic('arrow_back')}</button>${o.right || ('<span class="mark" aria-hidden="true">' + LOGO + '<span>nunua <b>sasa</b></span></span>')}</div>`;
     const prog = o.step ? `<div class="prog" role="progressbar" aria-valuemin="1" aria-valuemax="${o.step[1]}" aria-valuenow="${o.step[0]}" aria-label="Step ${o.step[0]} of ${o.step[1]}"><div class="prog__segs">${Array.from({ length: o.step[1] }, (_, i) => `<i class="${i < o.step[0] ? 'on' : ''}"></i>`).join('')}</div><span class="prog__label" aria-hidden="true">Step ${o.step[0]} of ${o.step[1]}</span></div>` : '';
     const heading = o.title ? `<h1 class="t-display" tabindex="-1">${o.title}</h1>${o.sub ? `<p class="t-sub">${o.sub}</p>` : ''}` : '';
     if (o.dark) return `<div class="scr scr--dark"><div class="scr__in"><div class="head">${top}${prog}${heading}${o.body || ''}<div class="push"></div><div class="actions">${o.actions || ''}</div></div><div class="ns-gesture ns-gesture--dark"></div></div></div>`;
@@ -175,6 +175,9 @@
       actions: btn("Confirm it's me", 'next', false) }),
   };
   const NEXT = { c1: 'c2', c2: 'c3', c3: 'c4', v1: 'v2', v2: 'v3', v4: 'v5', s6: 'v5' };
+
+  // Original mark for the concept (a bag with the buttons' forward arrow), not the real Nunua Sasa logo
+  const LOGO = '<svg class="mark__bag" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M10 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.6 9h12.8a2 2 0 0 1 2 1.8l1.6 11.6a3 3 0 0 1-3 3.6H7a3 3 0 0 1-3-3.6l1.6-11.6a2 2 0 0 1 2-1.8z" fill="var(--blue)"/><path d="M10 17.5h8M15 14l3.5 3.5L15 21" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* ---------- Navigation ---------- */
   function go(id, o = {}) {

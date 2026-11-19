@@ -95,6 +95,9 @@ body { background: var(--night); display: flex; flex-direction: column; }
 .ctl__btn--on { background: var(--white); color: var(--ink); border-color: var(--white); }
 .ctl__hint { color: var(--night-faint); font-size: var(--text-label); }
 .ctl__hint code { font-family: var(--f-mono); color: var(--white); }
+.metrics { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: var(--space-1-5) var(--space-3); }
+.metrics dt { color: var(--night-sub); }
+.metrics dd { margin: 0; color: var(--white); text-align: right; }
 
 @media (max-width: 1099px) {
   .stage { gap: var(--space-8); }
@@ -180,6 +183,9 @@ body { background: var(--night); display: flex; flex-direction: column; }
 .t-body { font-size: 13px; line-height: 19px; color: var(--muted); }
 .t-label { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--muted); }
 .t-cap { font-size: 12px; line-height: 16px; color: var(--muted); text-align: center; }
+.t-step { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--accent-deep); margin-bottom: 6px; }
+.info__ic--lg { width: 64px; height: 64px; }
+.info__ic--lg svg.i { width: 28px; height: 28px; }
 .t-cap--left { text-align: left; }
 .t-warn { color: var(--warn); }
 .row { display: flex; align-items: center; gap: 12px; }
@@ -330,6 +336,37 @@ body { background: var(--night); display: flex; flex-direction: column; }
 .shot--count { align-content: center; justify-items: center; gap: 2px; }
 .shot--phone { background: var(--media); position: relative; overflow: hidden; }
 .shot--phone::after { content: ''; position: absolute; left: 50%; top: 12px; width: 28px; height: 52px; margin-left: -12px; border-radius: 7px; background: linear-gradient(160deg, #2E3366, #6E78C2); transform: rotate(-8deg); }
+
+/* Photo guide */
+.slots { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.slot { position: relative; height: 128px; border-radius: 16px; background: var(--media); overflow: hidden; text-align: left; }
+.slot--empty { background: transparent; border: 1.2px dashed var(--muted); display: grid; align-content: center; justify-items: center; gap: 4px; text-align: center; color: var(--ink); }
+.slot--blurry { box-shadow: inset 0 0 0 1.5px var(--warn); }
+.slot__label { position: absolute; left: 8px; bottom: 8px; }
+.slot__label .chip svg.i { color: var(--safe); }
+.slot__flag { position: absolute; left: 8px; top: 8px; }
+.art { position: absolute; inset: 0; display: grid; place-items: center; }
+.art i { display: block; }
+.art--front i { width: 46px; height: 84px; margin-top: -18px; border-radius: 9px; background: var(--ink); padding: 3px; }
+.art--front i::after { content: ''; display: block; height: 100%; border-radius: 6px; background: linear-gradient(160deg, #D6D0FF, #5B45F0); }
+.art--back i { width: 46px; height: 84px; margin-top: -18px; border-radius: 9px; background: linear-gradient(160deg, #2E3366, #6E78C2); transform: rotate(-8deg); position: relative; }
+.art--back i::before { content: ''; position: absolute; left: 7px; top: 8px; width: 9px; height: 9px; border-radius: 50%; background: #0B0C18; box-shadow: 0 12px 0 #0B0C18, 0 24px 0 #0B0C18; }
+.slot--blurry .art { filter: blur(4px); }
+.art--edge i { width: 12px; height: 88px; margin-top: -18px; border-radius: 6px; background: linear-gradient(180deg, #2E3366, #6E78C2); position: relative; }
+.art--edge i::after { content: ''; position: absolute; left: -3px; top: 22px; width: 3px; height: 16px; border-radius: 2px; background: var(--ink); }
+.art--right i::after { left: auto; right: -3px; }
+.art--imei i, .art--battery i { margin-top: -22px; padding: 8px 10px; border-radius: 10px; background: var(--surface); font-style: normal; font-size: 15px; line-height: 20px; font-weight: 500; }
+.art i small { display: block; font-size: 10px; line-height: 12px; font-weight: 400; color: var(--muted); }
+
+/* Condition questions */
+.q { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.q + .q { border-top: 1px solid var(--line); }
+.q > .info__t, .q > .info__txt { flex: 1; }
+.q__v { font-size: 16px; line-height: 22px; font-weight: 500; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--subtle); flex: none; }
+.seg button { width: 46px; height: 30px; border-radius: 999px; font-size: 12px; line-height: 16px; font-weight: 500; display: grid; place-items: center; }
+.seg button[aria-checked="true"] { background: var(--ink); color: #fff; }
+.card--soft { background: var(--subtle); }
 
 /* Fields (display only: the demo never asks for real details) */
 .fld { display: grid; gap: 6px; }

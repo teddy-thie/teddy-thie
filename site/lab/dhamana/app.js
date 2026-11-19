@@ -54,10 +54,29 @@
     ['Google account removed', 'Settings › Accounts is empty']
   ];
   const REASONS = {
-    locked: ['Locked to someone’s account', 'Asks for the last owner’s Google sign-in', 'lock', 'locked to a Google account'],
-    described: ['Not as described', 'Condition, colour or storage is different', 'info', 'not as described'],
-    broken: ['Doesn’t work properly', 'Screen, cameras, charging or signal', 'alert', 'doesn’t work properly']
+    locked: ['Locked to someone’s account', 'Asks for the last owner’s sign-in', 'lock', 'locked to a Google account'],
+    described: ['Not as described', 'Condition or storage is different', 'info', 'not as described'],
+    broken: ['Doesn’t work properly', 'Screen, cameras or charging', 'alert', 'doesn’t work properly'],
+    mind: ['I changed my mind', 'It works, I just don’t want it', 'refund', 'changed her mind']
   };
+  const SHOTS = [['Screen on', 'Bright, no apps open', 'front'], ['Back', 'Flat, in daylight', 'back'], ['Left edge', 'Buttons and frame', 'edge'], ['Right edge', 'Buttons and frame', 'edge'], ['IMEI screen', 'Dial *#06#', 'imei'], ['Battery health', 'Settings › Battery', 'battery']];
+  const QUESTIONS = [['screen', 'Cracks on the screen?'], ['body', 'Cracks or dents on the back or frame?'], ['bio', 'Face unlock and fingerprint work?'], ['repaired', 'Ever repaired or opened?'], ['box', 'Original box included?']];
+  const LISTED_AT = at(0, 9, 40);
+  function grade() {
+    const a = S.seller.answers;
+    if (a.screen || a.body) return { label: 'Fair', lo: 20000, hi: 25000 };
+    if (a.repaired || !a.bio) return { label: 'Good', lo: 26000, hi: 30000 };
+    return { label: 'Very good', lo: 29000, hi: 34000 };
+  }
+  function conditionChips() {
+    const a = S.seller.answers;
+    const list = ['Battery 91%', a.screen ? 'Cracked screen' : 'Screen ✓', 'Cameras ✓', 'Charging ✓'];
+    if (a.body) list.push('Dents on the frame');
+    if (!a.bio) list.push('Face unlock ✗');
+    if (a.repaired) list.push('Repaired before');
+    return list;
+  }
+  const fairChip = () => { const g = grade(); return PRICE <= g.hi ? chip('safe', 'tag', 'Fair price') : chip('warn', 'tag', 'Above similar phones'); };
   const REPLIES = {
     fix: ['I’ll remove the account', 'Meet again or do it remotely within 24 hours', 'user', 'he’ll remove the account'],
     disagree: ['I disagree', 'Tell us what happened and add evidence', 'chat', 'he disagrees'],
@@ -78,8 +97,11 @@
       checks: [false, false, false, false, false], paused: false,
       dispute: null, released: null, cancelled: null,
       events: [], quiet: false, actor: null,
-      buyer: { local: listFirst ? 'search' : 'listing', choice: 'meet', reason: 'locked', photos: 2, sheet: null },
-      seller: { local: listFirst ? 'imei' : 'live', code: '', reply: 'fix', wrong: false, sheet: null }
+      returnAsk: null, reminded: false, payFails: 0,
+      buyer: { local: listFirst ? 'search' : 'listing', choice: 'meet', reason: 'locked', photos: 2, sheet: null, payfail: null },
+      seller: { local: listFirst ? 'imei' : 'live', code: '', reply: 'fix', wrong: false, sheet: null,
+        shots: SHOTS.map(() => listFirst ? 'empty' : 'ok'), blurred: false,
+        answers: { screen: false, body: false, bio: true, repaired: false, box: true } }
     };
   }
 
@@ -129,9 +151,16 @@
   const tlItem = (state, title, detail) => `<li class="tl__i is-${state}"><span class="tl__m" aria-hidden="true"><span class="tl__dot">${state === 'done' ? ic('check') : ''}</span><span class="tl__line"></span></span><span class="tl__txt"><span class="info__t">${title}</span><span class="info__d">${detail}</span></span></li>`;
   const photo = `<div class="ph" role="img" aria-label="Seller photo of a navy Samsung Galaxy A55 (illustration)"><span class="ph__back"><span class="ph__lens"></span><span class="ph__lens"></span><span class="ph__lens"></span></span>${chip('media', '', '1 of 6 · seller photos')}</div>`;
   const product = sub => `<div class="card"><div class="row"><span class="thumb" aria-hidden="true"></span><span class="info__txt"><span class="info__t">Samsung Galaxy A55 · 256 GB</span><span class="info__d">${sub}</span></span></div></div>`;
-  const timerChip = (tone = 'safe') => chip(tone, 'clock', `<span data-timer>${left(S.ends - S.t)}</span>`);
+  const remindAt = () => S.handover === 'agent' ? 60 : 5;
+  const timerChip = () => chip(S.ends - S.t <= remindAt() ? 'warn' : 'safe', 'clock', `<span data-timer>${left(S.ends - S.t)}</span>`);
   const shots = n => Array.from({ length: n }, (_, i) => `<span class="shot" role="img" aria-label="Photo ${i + 1}: the phone asking for an account sign-in"><i>${ic(i % 2 ? 'user' : 'lock')}</i></span>`).join('');
   const evidence = n => `<div class="shots">${shots(n)}</div>`;
+  const slot = (i, label, hint, kind, st) => {
+    if (st === 'empty') return `<button type="button" class="slot slot--empty" data-act="s-shot" data-arg="${i}">${ic('camera')}<span class="info__t">${label}</span><span class="info__d">${hint}</span></button>`;
+    const blur = st === 'blurry';
+    const art = kind === 'imei' ? '<i><small>IMEI</small>…098 4417</i>' : kind === 'battery' ? '<i><small>Battery health</small>91%</i>' : '<i></i>';
+    return `<button type="button" class="slot${blur ? ' slot--blurry' : ''}" data-act="s-shot" data-arg="${i}" aria-label="${label}: ${blur ? 'too blurry, tap to retake' : 'taken'}"><span class="art art--${kind}${i === 3 ? ' art--right' : ''}" aria-hidden="true">${art}</span>${blur ? `<span class="slot__flag" aria-hidden="true">${chip('warn', 'alert', 'Too blurry · retake')}</span>` : ''}<span class="slot__label" aria-hidden="true">${chip('media', blur ? '' : 'check', label)}</span></button>`;
+  };
 
   /* ---------- Wanjiku's screens ---------- */
   function buyerScreen() {
@@ -162,6 +191,18 @@
           ${note('', 'shield', 'Held by a licensed payment partner (demo). Brian gets nothing until you release it.')}
         </div>
         <div class="scr__actions">${btn(`Pay ${ksh(TOTAL)} with M-Pesa`, 'b-pay')}<p class="t-cap">From M-Pesa ${BUYER_MPESA} (demo)</p></div>`];
+      if (b.local === 'payfail') {
+        const low = b.payfail === 'balance';
+        return ['payfail-' + b.payfail, `
+        <div class="scr__body">${bar('Pay', { back: 'b-back-checkout' })}
+          <span class="info__ic info__ic--warn info__ic--lg">${ic('wallet')}</span>
+          <p class="t-title">The payment didn’t go through</p>
+          <p class="t-body">${low ? `M-Pesa says there isn’t enough in the account for ${ksh(TOTAL)}.` : 'The M-Pesa prompt closed before it was approved.'} Nothing was taken, and the phone is still yours to buy.</p>
+          <div class="card">${low ? info('warn', 'alert', 'Not enough in M-Pesa', 'Top up, then try again') : info('warn', 'clock', 'The prompt timed out', 'It closes after 60 seconds. Try again when your phone is with you.')}</div>
+          ${note('', 'info', 'If M-Pesa ever reverses a payment after it’s held, the sale is cancelled and you’re both told.')}
+        </div>
+        <div class="scr__actions">${btn('Try again', 'b-pay')}${btn('Back to checkout', 'b-back-checkout', { style: 'text' })}</div>`];
+      }
       if (b.local === 'paying') return ['paying', `
         <div class="scr__body">${bar('Pay', { back: 'b-back-checkout' })}
           <p class="t-title">Check your phone</p>
@@ -174,11 +215,11 @@
         <div class="scr__body">${bar('Listing', { right: iconBtn('heart', 'b-save', 'Save') })}
           ${photo}
           <div class="stack"><p class="t-product">Samsung Galaxy A55 · 256 GB</p><p class="t-body">Navy · bought March 2025 · Kilimani (demo)</p></div>
-          <div class="row row--between"><p class="t-amount">${ksh(PRICE)}</p>${chip('safe', 'tag', 'Fair price')}</div>
+          <div class="row row--between"><p class="t-amount">${ksh(PRICE)}</p>${fairChip()}</div>
           <div class="card">
             ${info('safe', 'device', 'IMEI checked', 'Valid with the Communications Authority, same model as listed')}
             ${info('accent', 'user', 'Brian M. · ID verified', '12 sales · no disputes')}
-            <div class="chips">${['Very good', 'Battery 91%', 'Screen ✓', 'Cameras ✓', 'Charging ✓'].map(c => chip('', '', c)).join('')}</div>
+            <div class="chips">${[grade().label].concat(conditionChips()).map(c => chip('', '', c)).join('')}</div>
           </div>
         </div>
         <div class="scr__actions">${btn('Buy with Dhamana', 'b-buy')}<p class="t-cap">Held until you’ve checked the phone · ${ksh(FEE)} fee</p></div>`];
@@ -213,10 +254,26 @@
           <div class="opts" role="radiogroup" aria-labelledby="why-label">
             ${Object.entries(REASONS).map(([k, r]) => opt(k, b.reason === k, r[2], r[0], r[1], 'b-reason')).join('')}
           </div>
-          <div class="fld"><p class="t-label">Photos (${b.photos})</p><div class="shots">${shots(b.photos)}${b.photos < 3 ? `<button type="button" class="shot shot--add" data-act="b-photo" aria-label="Add a photo">${ic('camera')}</button>` : ''}</div></div>
-          ${note('warn', 'alert', 'Don’t reset or unlock the phone. Keep it as it is until we decide.')}
+          ${b.reason === 'mind' ? note('', 'info', 'If the phone is as described, this isn’t a dispute. See what you can do instead.')
+            : `<div class="fld"><p class="t-label">Photos (${b.photos})</p><div class="shots">${shots(b.photos)}${b.photos < 3 ? `<button type="button" class="shot shot--add" data-act="b-photo" aria-label="Add a photo">${ic('camera')}</button>` : ''}</div></div>
+          ${note('warn', 'alert', 'Don’t reset or unlock the phone. Keep it as it is until we decide.')}`}
         </div>
-        <div class="scr__actions">${btn('Open a dispute', 'b-dispute')}${btn('Go back to checking', 'b-back-check', { style: 'text' })}</div>`];
+        <div class="scr__actions">${b.reason === 'mind' ? btn('Continue', 'b-mind') : btn('Open a dispute', 'b-dispute')}${btn('Go back to checking', 'b-back-check', { style: 'text' })}</div>`];
+      if (b.local === 'mind') {
+        const waiting = S.returnAsk === 'pending', refused = S.returnAsk === 'no';
+        return ['mind' + (waiting ? '-wait' : refused ? '-no' : ''), `
+        <div class="scr__body">${bar('Problem', { back: waiting ? '' : 'b-report', right: chip('warn', 'clock', 'Timer paused') })}
+          ${steps('buyer', 3)}
+          <p class="t-title">That isn’t a dispute</p>
+          <p class="t-body">Disputes are for phones that aren’t as described. If the phone is fine, Brian doesn’t have to take it back.</p>
+          <div class="card">
+            ${waiting ? info('accent', 'chat', 'Waiting for Brian', `You asked at ${hm(S.askedAt)}. His answer shows here.`) : refused ? info('warn', 'chat', 'Brian said no', 'He doesn’t have to take back a phone that’s as described.') : info('accent', 'chat', 'Ask Brian to take it back', `If he agrees, hand it back and get ${ksh(PRICE)}. The ${ksh(FEE)} fee isn’t refunded.`)}
+            ${info('safe', 'check', 'Or keep it', 'Release the money, or let the timer run out.')}
+          </div>
+          ${note('', 'clock', 'Your timer is paused while you decide. It carries on when you go back.')}
+        </div>
+        <div class="scr__actions">${waiting || refused ? '' : btn('Ask Brian to take it back', 'b-ask')}${btn('Go back to checking', 'b-back-check', { style: 'text' })}</div>`];
+      }
       const done = S.checks.filter(Boolean).length;
       return ['check', `
         <div class="scr__body">${bar('Check the phone', { right: timerChip() })}
@@ -275,6 +332,24 @@
         <div class="scr__actions">${btn('Rate Brian', 'rate')}${btn('Download receipt', 'receipt', { style: 'text' })}</div>`];
     }
     // cancelled
+    if (S.cancelled === 'seller') return ['cancelled-seller', `
+      <div class="scr__body">${bar('Your purchase')}
+        <div class="row">${chip('warn', 'close', 'Brian cancelled')}</div>
+        ${hero('released', 'check', 'Refunded', ksh(TOTAL), 'Brian cancelled the sale, so the money went straight back to your M-Pesa (demo). Fee included.', true)}
+        <div class="card"><ol class="tl">
+          ${tlItem('done', `You paid ${ksh(TOTAL)}`, when(S.paidAt))}${tlItem('warn', 'Brian cancelled the sale', when(S.cancelledAt))}${tlItem('done', 'Refunded to your M-Pesa', when(S.cancelledAt))}
+        </ol></div>
+      </div>
+      <div class="scr__actions">${btn('Find another phone', 'b-again')}</div>`];
+    if (S.cancelled === 'return') return ['cancelled-return', `
+      <div class="scr__body">${bar('Your purchase')}
+        <div class="row">${chip('', 'refund', 'Returned to Brian')}</div>
+        ${hero('released', 'check', 'Refunded', ksh(PRICE), `You handed the phone back and Brian confirmed it. The ${ksh(FEE)} fee isn’t refunded, because the phone was as described.`, true)}
+        <div class="card"><ol class="tl">
+          ${tlItem('done', `You paid ${ksh(TOTAL)}`, when(S.paidAt))}${tlItem('done', 'You asked to return it', when(S.askedAt))}${tlItem('done', 'Brian agreed and has it back', when(S.cancelledAt))}${tlItem('done', `${ksh(PRICE)} back on your M-Pesa`, when(S.cancelledAt))}
+        </ol></div>
+      </div>
+      <div class="scr__actions">${btn('Find another phone', 'b-again')}</div>`];
     const noshow = S.cancelled === 'noshow';
     return ['cancelled', `
       <div class="scr__body">${bar('Your purchase')}
@@ -309,18 +384,42 @@
     if (S.stage === 'listed') {
       if (s.local === 'imei') return ['imei', `
         <div class="scr__body">${bar('Sell a phone')}
-          <p class="t-title">First, check the IMEI</p>
+          <div class="stack"><p class="t-step">Step 1 of 4 · IMEI</p><p class="t-title">First, check the IMEI</p></div>
           <p class="t-body">Dial *#06# on the phone you’re selling. Buyers only see phones that pass this check.</p>
           <div class="fld"><p class="t-label">IMEI, read from *#06#</p><p class="fld__box fld__box--on"><span class="fld__v">35 291 411 098 4417</span><span class="fld__ok">${ic('check')}</span></p><p class="t-cap t-cap--left">15 digits · this one is invented</p></div>
           <div class="card">${info('safe', 'device', 'Valid with the Communications Authority', 'Samsung Galaxy A55 · not blacklisted (demo check)')}</div>
           ${note('', 'info', 'Same check as sending the IMEI by SMS to 1555. We check it again at handover, so it has to match.')}
         </div>
-        <div class="scr__actions">${btn('Continue', 's-price')}${btn('Why we ask for this', 'why-imei', { style: 'text' })}</div>`];
-      if (s.local === 'price') return ['price', `
+        <div class="scr__actions">${btn('Continue', 's-photos')}${btn('Why we ask for this', 'why-imei', { style: 'text' })}</div>`];
+      if (s.local === 'photos') {
+        const okN = s.shots.filter(x => x === 'ok').length, blur = s.shots.includes('blurry');
+        return ['photos', `
         <div class="scr__body">${bar('Your listing', { back: 's-imei' })}
+          <div class="stack"><p class="t-step">Step 2 of 4 · Photos</p><p class="t-title">Take 6 photos</p><p class="t-body">Use daylight and a plain background. Buyers trust what they can see.</p></div>
+          <div class="slots" role="group" aria-label="Photo guide, ${okN} of 6 taken">${SHOTS.map(([l, h, k], i) => slot(i, l, h, k, s.shots[i])).join('')}</div>
+          ${blur ? note('warn', 'alert', 'The back photo is too blurry to show scratches. Retake it in better light.') : note('', 'info', 'Buyers look hardest at the IMEI and battery photos.')}
+        </div>
+        <div class="scr__actions">${btn('Continue', 's-condition', { disabled: okN < 6 })}<p class="t-cap${blur ? ' t-warn' : ''}">${blur ? '1 photo to retake' : okN + ' of 6 photos'}</p></div>`];
+      }
+      if (s.local === 'condition') {
+        const g = grade();
+        return ['condition', `
+        <div class="scr__body">${bar('Your listing', { back: 's-photos' })}
+          <div class="stack"><p class="t-step">Step 3 of 4 · Condition</p><p class="t-title">How is it, honestly?</p><p class="t-body">Your answers become the condition report buyers see, and set the price range.</p></div>
+          <div class="card card--list">
+            ${QUESTIONS.map(([k, q]) => `<div class="q"><span class="info__t" id="q-${k}">${q}</span><span class="seg" role="radiogroup" aria-labelledby="q-${k}">${[['yes', 'Yes'], ['no', 'No']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(v === 'yes') === s.answers[k]}" data-act="s-answer" data-arg="${k}:${v}">${l}</button>`).join('')}</span></div>`).join('')}
+            <div class="q"><span class="info__txt"><span class="info__t">Battery health</span><span class="info__d">Read from your battery photo</span></span><span class="q__v">91%</span></div>
+          </div>
+          <div class="card card--tight"><div class="row"><span class="t-body">Condition</span>${chip('accent', 'check', g.label)}</div><p class="t-body">${g.label} A55s sell for ${ksh(g.lo)}–${g.hi.toLocaleString('en-GB')} (demo).</p></div>
+        </div>
+        <div class="scr__actions">${btn('Continue', 's-price')}</div>`];
+      }
+      if (s.local === 'price') return ['price', `
+        <div class="scr__body">${bar('Your listing', { back: 's-condition' })}
+          <p class="t-step">Step 4 of 4 · Price</p>
           <div class="shots"><span class="shot shot--phone"></span><span class="shot shot--phone"></span><span class="shot shot--phone"></span><span class="shot shot--add shot--count">${ic('plus')}<span class="t-cap">6 photos</span></span></div>
-          <div class="card card--tight"><p class="t-label">Condition</p><div class="chips">${chip('accent', 'check', 'Very good')}${['Battery 91%', 'Screen ✓', 'Cameras ✓', 'Charging ✓'].map(c => chip('', '', c)).join('')}</div></div>
-          <div class="fld"><p class="t-label">Your price</p><p class="fld__box"><span class="t-amount">${ksh(PRICE)}</span>${chip('safe', 'tag', 'Fair price')}</p><p class="t-cap t-cap--left">Similar A55s sold for KSh 29,000–34,000 this month (demo)</p></div>
+          <div class="card card--tight"><p class="t-label">Condition</p><div class="chips">${chip('accent', 'check', grade().label)}${conditionChips().map(c => chip('', '', c)).join('')}</div></div>
+          <div class="fld"><p class="t-label">Your price</p><p class="fld__box"><span class="t-amount">${ksh(PRICE)}</span>${fairChip()}</p><p class="t-cap t-cap--left">${grade().label} A55s sold for ${ksh(grade().lo)}–${grade().hi.toLocaleString('en-GB')} this month (demo). Set by your checklist.</p></div>
           <div class="card card--sum">
             <p class="sum"><span>Buyer pays</span><b>${ksh(TOTAL)}</b></p>
             <p class="sum"><span>Dhamana fee, paid by the buyer</span><b>${ksh(FEE)}</b></p>
@@ -365,7 +464,7 @@
           </div>
           ${S.dropped ? note('', 'clock', 'We’ll tell you when she collects it.') : note('', 'clock', `Drop it off by ${when(S.paidAt + 3 * 1440)}, or Wanjiku gets a full refund.`)}
         </div>
-        <div class="scr__actions">${S.dropped ? btn('Message Wanjiku', 'chat', { style: 'secondary' }) : btn('I’ve dropped it off', 's-drop')}${S.dropped ? '' : btn('Meet her in person instead', 'not-in-demo', { style: 'text' })}</div>`];
+        <div class="scr__actions">${S.dropped ? btn('Message Wanjiku', 'chat', { style: 'secondary' }) : btn('I’ve dropped it off', 's-drop')}${S.dropped ? '' : btn('Cancel the sale', 's-cancel', { style: 'text' })}</div>`];
       return ['sold', `
         <div class="scr__body">${bar('Sale', { right: iconBtn('chat', 'chat', 'Message Wanjiku') })}
           ${steps('seller', 2)}
@@ -376,7 +475,7 @@
           </div>
           ${note('', 'clock', `Hand it over by ${when(S.paidAt + 3 * 1440)}, or Wanjiku gets a full refund.`)}
         </div>
-        <div class="scr__actions">${btn('I’m with Wanjiku', 's-meet')}${btn('Drop it at a pickup agent instead', 'not-in-demo', { style: 'text' })}</div>`];
+        <div class="scr__actions">${btn('I’m with Wanjiku', 's-meet')}${btn('Cancel the sale', 's-cancel', { style: 'text' })}</div>`];
     }
     if (S.stage === 'checking') {
       const done = S.checks.filter(Boolean).length;
@@ -388,7 +487,7 @@
             <p class="t-label">Wanjiku’s checklist · ${done} of 5</p>
             ${CHECKS.map(([t], i) => `<div class="chk" role="checkbox" aria-checked="${S.checks[i]}" aria-disabled="true"><span class="chk__box">${ic('check')}</span><span class="info__t">${t.replace('your', 'her')}</span></div>`).join('')}
           </div>
-          ${note('', 'info', S.paused ? 'Wanjiku is reporting a problem. Her timer is paused.' : 'Stay close until she’s done. If she reports a problem, the money stays held while we look into it.')}
+          ${note('', 'info', S.paused ? 'Wanjiku has paused her timer to look at a problem.' : 'Stay close until she’s done. If she reports a problem, the money stays held while we look into it.')}
         </div>
         <div class="scr__actions">${btn('Message Wanjiku', 'chat', { style: 'secondary' })}</div>`];
     }
@@ -438,6 +537,20 @@
         ${note('safe', 'shield', S.released === 'decision' ? 'Dispute settled in your favour. Your record: 13 sales · 1 dispute, settled.' : 'Your record: 13 sales · no disputes.')}
       </div>
       <div class="scr__actions">${btn('Sell another phone', 's-again')}${btn('Download receipt', 'receipt', { style: 'text' })}</div>`];
+    if (S.cancelled === 'seller' || S.cancelled === 'return') {
+      const ret = S.cancelled === 'return';
+      return ['s-cancelled-' + S.cancelled, `
+      <div class="scr__body">${bar('Sale')}
+        <div class="row">${ret ? chip('', 'refund', 'Taken back') : chip('warn', 'close', 'Sale cancelled')}</div>
+        <p class="t-title">${ret ? 'You took the phone back' : 'You cancelled the sale'}</p>
+        <div class="card">
+          ${ret ? info('', 'refund', `Wanjiku got ${ksh(PRICE)} back`, `Dhamana kept her ${ksh(FEE)} fee`) : info('warn', 'refund', `Wanjiku got ${ksh(TOTAL)} back`, 'Straight away, fee included')}
+          ${info('safe', 'device', 'Your listing', ret ? 'Live again' : 'Paused. Relist it when you’re ready.')}
+        </div>
+        ${ret ? note('safe', 'shield', 'Taking a phone back doesn’t count against your record.') : note('warn', 'info', 'Cancelling after the buyer has paid shows on your record.')}
+      </div>
+      <div class="scr__actions">${btn(ret ? 'See your listing' : 'Relist the phone', 'not-in-demo')}</div>`];
+    }
     const noshow = S.cancelled === 'noshow';
     return ['s-cancelled', `
       <div class="scr__body">${bar('Sale')}
@@ -456,6 +569,26 @@
   function sheetHtml(who) {
     const k = S[who].sheet;
     if (!k) return '';
+    if (k === 's-cancel') return `
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sc-t">
+        <span class="sheet__grab" aria-hidden="true"></span>
+        <p class="t-title" id="sc-t">Cancel this sale?</p>
+        <p class="t-body">Wanjiku gets ${ksh(TOTAL)} back straight away. Cancelling after she’s paid shows on your record.</p>
+        <div class="scr__actions scr__actions--sheet">${btn('Cancel the sale', 's-cancel-ok', { style: 'danger' })}${btn('Keep the sale', 's-sheet-close', { style: 'text' })}</div>
+        <div class="dh-gesture"></div>
+      </div>`;
+    if (k === 'return') return `
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rt-t">
+        <span class="sheet__grab" aria-hidden="true"></span>
+        <p class="t-title" id="rt-t">Wanjiku wants to return it</p>
+        <p class="t-body">She says the phone is as described, but she’s changed her mind. You don’t have to agree.</p>
+        <div class="card card--soft">
+          ${info('', 'refund', 'If you agree', `Take the phone back. She gets ${ksh(PRICE)}; the fee isn’t refunded.`)}
+          ${info('', 'clock', 'If you say no', 'Her timer carries on, and the money comes to you when it ends.')}
+        </div>
+        <div class="scr__actions scr__actions--sheet">${btn('Agree to take it back', 's-return-yes', { arrow: false })}${btn('Say no', 's-return-no', { style: 'text' })}</div>
+        <div class="dh-gesture"></div>
+      </div>`;
     if (k === 'mpesa') return `
       <div class="sys" role="dialog" aria-modal="true" aria-labelledby="mp-t">
         <p class="sys__from">M-Pesa (demo)</p>
@@ -520,7 +653,9 @@
       case 'checking': return { x: 50, here: 1, amount: `${ksh(PRICE)} held`, sub: S.paused ? 'Timer paused while Wanjiku reports a problem.' : `Goes to Brian at ${S.handover === 'agent' ? when(S.ends) : hm(S.ends)} unless Wanjiku reports a problem.` };
       case 'disputed': return { x: 50, here: 1, amount: `${ksh(PRICE)} held`, sub: 'Nobody gets paid until Dhamana decides.' };
       case 'refunding': return { x: 50, here: 1, amount: `${ksh(TOTAL)} to refund`, sub: 'Paid back when the agent has the phone.' };
-      case 'refunded': case 'cancelled': return { x: 16.66, here: 0, safe: true, amount: `${ksh(TOTAL)} back with Wanjiku`, sub: 'Fee included. Brian keeps his phone.' };
+      case 'cancelled': if (S.cancelled === 'return') return { x: 16.66, here: 0, safe: true, amount: `${ksh(PRICE)} back with Wanjiku`, sub: `Dhamana keeps the ${ksh(FEE)} fee. Brian has his phone back.` };
+        return { x: 16.66, here: 0, safe: true, amount: `${ksh(TOTAL)} back with Wanjiku`, sub: 'Fee included. Brian keeps his phone.' };
+      case 'refunded': return { x: 16.66, here: 0, safe: true, amount: `${ksh(TOTAL)} back with Wanjiku`, sub: 'Fee included. Brian keeps his phone.' };
       default: return { x: 83.33, here: 2, safe: true, amount: `${ksh(PRICE)} paid to Brian`, sub: `Dhamana keeps the ${ksh(FEE)} fee Wanjiku paid.` };
     }
   }
@@ -529,12 +664,21 @@
     const b = [];
     let hint = '';
     const st = S.stage;
-    if (st === 'listed') hint = S.seller.local === 'live' || S.buyer.local !== 'search' ? 'Start on Wanjiku’s phone: tap Buy with Dhamana.' : 'Start on Brian’s phone: check the IMEI and publish the listing.';
+    if (st === 'listed') {
+      if (S.buyer.local === 'paying') { b.push(['Payment fails: not enough in M-Pesa', 'fail-balance'], ['The prompt times out', 'fail-timeout']); hint = 'Or approve the prompt on Wanjiku’s phone.'; }
+      else if (S.seller.local === 'photos') hint = 'Tap each photo slot on Brian’s phone. The back photo comes out blurry the first time.';
+      else if (S.seller.local === 'condition') hint = 'Change an answer to see the condition and the price range move.';
+      else hint = S.seller.local === 'live' || S.buyer.local !== 'search' ? 'Start on Wanjiku’s phone: tap Buy with Dhamana.' : 'Start on Brian’s phone: check the IMEI and publish the listing.';
+    }
     if (st === 'held') {
       b.push(['Let 3 days pass with no handover', 'noshow']);
       hint = S.handover === 'agent' ? (S.dropped ? 'Wanjiku can collect it now.' : 'Brian drops the phone at the agent first.') : 'At the meet-up, Brian types Wanjiku’s code: <code>482 916</code>. It’s on her screen.';
     }
-    if (st === 'checking') { b.push([S.handover === 'agent' ? 'Let the 24 hours run out' : 'Let the 30 minutes run out', 'timeout']); hint = 'Tick the checks on Wanjiku’s phone and watch Brian’s update.'; }
+    if (st === 'checking') {
+      if (!S.reminded && S.returnAsk !== 'pending') b.push([S.handover === 'agent' ? 'Skip to 1 hour left' : 'Skip to 5 minutes left', 'remind']);
+      if (S.returnAsk !== 'pending') b.push([S.handover === 'agent' ? 'Let the 24 hours run out' : 'Let the 30 minutes run out', 'timeout']);
+      hint = S.returnAsk === 'pending' ? 'Brian answers on his phone: take it back, or say no.' : 'Tick the checks on Wanjiku’s phone and watch Brian’s update. “Something’s wrong” also covers a change of mind.';
+    }
     if (st === 'disputed') {
       const r = S.dispute.reply;
       if (!r) { b.push(['Let 24 hours pass with no reply', 'noreply']); hint = 'Brian replies on his phone first.'; }
@@ -549,6 +693,16 @@
     return { b, hint };
   }
 
+  function dur(m) { const h = Math.floor(m / 60), mm = Math.round(m % 60); return h ? `${h} h ${mm} min` : `${mm} min`; }
+  function metrics() {
+    const paid = S.paidAt != null;
+    return [
+      ['Listing to first offer', paid ? dur(S.paidAt - LISTED_AT) : '—'],
+      ['Checkout', paid ? (S.payFails ? `Paid after ${S.payFails} failed ${S.payFails === 1 ? 'try' : 'tries'}` : 'Paid first time') : (S.payFails ? `${S.payFails} failed ${S.payFails === 1 ? 'try' : 'tries'} so far` : '—')],
+      ['Dispute', S.dispute ? `Yes · ${REASONS[S.dispute.reason][3]}` : (paid ? 'No' : '—')],
+      ['Released automatically', S.released ? (S.released === 'auto' ? 'Yes' : 'No') : '—']
+    ];
+  }
   function renderSale() {
     const m = moneyState();
     const c = controls();
@@ -566,6 +720,7 @@
       </div>
       <div><h3>What happened</h3><ol class="events" aria-live="polite">${ev || '<li><time></time><span>Nothing yet.</span></li>'}</ol></div>
       <div class="ctl"><h3>Move time on</h3>${c.b.length ? `<div class="ctl__btns">${c.b.map(([l, k]) => `<button type="button" class="ctl__btn" data-skip="${k}">${l}</button>`).join('')}</div>` : ''}<p class="ctl__hint">${c.hint}</p></div>
+      <div class="ctl"><h3>What we’d measure</h3><dl class="metrics">${metrics().map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl><p class="ctl__hint">For this sale. The real product tracks them across every sale.</p></div>
       <div class="ctl"><h3>Try another path</h3><div class="ctl__btns">${path('Start over', 'start')}${path('Brian lists it first', 'list')}${path('Collect at an agent', 'agent')}${path('Jump to the check', 'check')}${path('Jump to a dispute', 'dispute')}${path('Brian doesn’t show', 'noshow')}</div></div>`;
     const list = saleEl.querySelector('.events');
     list.scrollTop = list.scrollHeight;
@@ -664,7 +819,7 @@
   function fixed() {
     const d = S.dispute;
     S.t += 95; d.fixedAt = S.t;
-    S.stage = 'checking'; S.checks[4] = true; S.ends = S.t + 30; S.buyer.local = 'check';
+    S.stage = 'checking'; S.checks[4] = true; S.ends = S.t + 30; S.buyer.local = 'check'; S.reminded = false;
     log('<b>Brian</b> removed the Google account · dispute closed');
     log(`Wanjiku gets 30 more minutes · money held until ${hm(S.ends)}`, true);
     notify('buyer', 'check', 'safe', 'Brian removed the account', 'Check it again. You have 30 more minutes.');
@@ -682,13 +837,49 @@
       S.t = S.paidAt + 3 * 1440;
       log(S.handover === 'agent' ? 'Brian didn’t drop the phone off' : '<b>Brian</b> missed the meet-up at Sarit Centre');
       log('No handover within 3 days · sale cancelled');
+    } else if (why === 'seller') {
+      S.seller.sheet = null;
+      S.t = Math.max(S.t + 5, at(0, 15, 10));
+      log('<b>Brian</b> cancelled the sale after Wanjiku paid');
+    } else if (why === 'return') {
+      S.seller.sheet = null; S.paused = false; S.returnAsk = 'yes';
+      S.t += 4;
+      log('<b>Brian</b> agreed and has the phone back');
     } else {
       log('<b>Wanjiku</b> cancelled before the handover');
     }
     S.cancelledAt = S.t;
+    if (why === 'return') {
+      log(`${ksh(PRICE)} refunded to Wanjiku · Dhamana keeps the ${ksh(FEE)} fee`, true);
+      notify('buyer', 'refund', 'safe', 'Brian agreed', `${ksh(PRICE)} is back on your M-Pesa.`);
+      return;
+    }
     log(`${ksh(TOTAL)} refunded to Wanjiku’s M-Pesa (demo), fee included`, true);
-    notify('buyer', 'refund', 'safe', why === 'noshow' ? 'Refunded: Brian didn’t hand it over' : 'Cancelled and refunded', `${ksh(TOTAL)} is back on your M-Pesa.`);
-    notify('seller', 'close', 'warn', 'Sale cancelled', why === 'noshow' ? 'You didn’t hand it over within 3 days.' : 'Wanjiku cancelled before the handover.');
+    const bt = { noshow: 'Refunded: Brian didn’t hand it over', seller: 'Brian cancelled the sale', buyer: 'Cancelled and refunded' }[why];
+    notify('buyer', 'refund', 'safe', bt, `${ksh(TOTAL)} is back on your M-Pesa.`);
+    if (why !== 'seller') notify('seller', 'close', 'warn', 'Sale cancelled', why === 'noshow' ? 'You didn’t hand it over within 3 days.' : 'Wanjiku cancelled before the handover.');
+  }
+  function payFail(reason) {
+    S.buyer.local = 'payfail'; S.buyer.payfail = reason; S.buyer.sheet = null; S.payFails++; clearTimers();
+    log(`Wanjiku’s payment didn’t go through: ${reason === 'balance' ? 'not enough in M-Pesa' : 'the prompt timed out'} · nothing taken`);
+  }
+  function askReturn() {
+    S.returnAsk = 'pending'; S.askedAt = S.t; S.seller.sheet = 'return';
+    log('<b>Wanjiku</b> asked Brian to take it back: she changed her mind');
+    notify('seller', 'refund', 'accent', 'Wanjiku wants to return it', 'She says the phone is fine. You don’t have to agree.');
+  }
+  function returnDeclined() {
+    S.returnAsk = 'no'; S.seller.sheet = null; S.paused = false; S.buyer.local = 'check'; S.t += 3;
+    log('<b>Brian</b> said no to taking it back · her timer carries on');
+    notify('buyer', 'chat', 'accent', 'Brian said no', 'Release the money, or let the timer run out.');
+  }
+  function remind() {
+    if (S.reminded || S.stage !== 'checking') return false;
+    S.reminded = true;
+    const agent = S.handover === 'agent';
+    log(`Wanjiku was reminded: ${agent ? '1 hour' : '5 minutes'} left to check`);
+    notify('buyer', 'clock', 'warn', `${agent ? '1 hour' : '5 minutes'} left to check`, `Then ${ksh(PRICE)} goes to Brian. Release it or report a problem.`);
+    return true;
   }
 
   /* ---------- Paths (the Try another path buttons, and ?path= in the address) ---------- */
@@ -730,14 +921,25 @@
     'b-check': (w, i) => { S.checks[+i] = !S.checks[+i]; },
     'b-release': () => { S.buyer.sheet = 'release'; },
     'b-release-ok': () => release('buyer'),
-    'b-report': () => { S.buyer.local = 'report'; S.paused = true; log('<b>Wanjiku</b> is reporting a problem · timer paused'); },
+    'b-report': () => { S.buyer.local = 'report'; if (!S.paused) { S.paused = true; log('<b>Wanjiku</b> is reporting a problem · timer paused'); } },
     'b-back-check': () => { S.buyer.local = 'check'; S.paused = false; },
     'b-reason': (w, v) => { S.buyer.reason = v; },
     'b-photo': () => { S.buyer.photos = Math.min(3, S.buyer.photos + 1); },
     'b-dispute': () => openDispute(),
+    'b-mind': () => { S.buyer.local = 'mind'; },
+    'b-ask': () => askReturn(),
     'b-more': w => { S.dispute.photos = Math.min(4, S.dispute.photos + 1); toast(w, 'Photo added. Brian and Dhamana can see it.'); },
     'b-again': () => start('start'),
     's-price': () => { S.seller.local = 'price'; },
+    's-photos': () => { if (S.stage === 'listed') S.seller.local = 'photos'; },
+    's-condition': () => { if (S.seller.shots.every(x => x === 'ok')) S.seller.local = 'condition'; },
+    's-shot': (w, i) => { const sh = S.seller.shots; i = +i; if (sh[i] === 'blurry') sh[i] = 'ok'; else if (sh[i] === 'empty') { if (i === 1 && !S.seller.blurred) { sh[i] = 'blurry'; S.seller.blurred = true; } else sh[i] = 'ok'; } else return false; },
+    's-answer': (w, a) => { const [k, v] = a.split(':'); S.seller.answers[k] = v === 'yes'; },
+    's-cancel': () => { S.seller.sheet = 's-cancel'; },
+    's-cancel-ok': () => cancel('seller'),
+    's-sheet-close': () => { S.seller.sheet = null; },
+    's-return-yes': () => cancel('return'),
+    's-return-no': () => returnDeclined(),
     's-imei': () => { if (S.stage === 'listed') S.seller.local = 'imei'; },
     's-publish': () => publish(),
     's-meet': () => meet(),
@@ -776,7 +978,7 @@
   Object.values(PH).forEach(root => root.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     const who = root.dataset.who;
-    if (S[who].sheet && S[who].sheet !== 'mpesa') { S[who].sheet = null; S.actor = who; render(); }
+    if (S[who].sheet && S[who].sheet !== 'mpesa' && S[who].sheet !== 'return') { S[who].sheet = null; S.actor = who; render(); }
   }));
 
   saleEl.addEventListener('click', e => {
@@ -786,6 +988,9 @@
     if (!k) return;
     const s = k.dataset.skip;
     if (s === 'noshow') cancel('noshow');
+    if (s === 'fail-balance') payFail('balance');
+    if (s === 'fail-timeout') payFail('timeout');
+    if (s === 'remind') { S.t = S.ends - remindAt() + 1 / 120; remind(); }
     if (s === 'timeout') release('auto');
     if (s === 'noreply') { S.t = S.dispute.openedAt + 1440; S.dispute.reply = 'none'; log('Brian didn’t reply within 24 hours'); decide('refund'); }
     if (s === 'fixed') fixed();
@@ -801,6 +1006,7 @@
     if (!S || S.stage !== 'checking' || S.paused) return;
     S.t += 1 / 60;
     if (S.ends - S.t <= 0) { release('auto'); render(); return; }
+    if (S.ends - S.t <= remindAt() && remind()) { render(); return; }
     document.querySelectorAll('[data-timer]').forEach(el => { el.textContent = left(S.ends - S.t); });
     const c = saleEl.querySelector('[data-clock]');
     if (c) c.textContent = when(S.t);

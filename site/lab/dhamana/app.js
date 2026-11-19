@@ -98,6 +98,7 @@
       dispute: null, released: null, cancelled: null,
       events: [], quiet: false, actor: null,
       returnAsk: null, reminded: false, payFails: 0,
+      splash: { buyer: false, seller: false }, play: { buyer: null, seller: null },
       buyer: { local: listFirst ? 'search' : 'listing', choice: 'meet', reason: 'locked', photos: 2, sheet: null, payfail: null },
       seller: { local: listFirst ? 'imei' : 'live', code: '', reply: 'fix', wrong: false, sheet: null,
         shots: SHOTS.map(() => listFirst ? 'empty' : 'ok'), blurred: false,
@@ -113,6 +114,28 @@
   const part = (who, sel) => PH[who].querySelector(sel);
   const last = { buyer: null, seller: null };
   const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Motion (Lottie, built for this concept; the final frame stands in for reduced motion) ---------- */
+  const HAS_LOTTIE = !!window.lottie;
+  const MOTION = {};
+  ['splash', 'held', 'released'].forEach(n => { MOTION[n] = fetch('motion/' + n + '.json').then(r => (r.ok ? r.json() : null)).catch(() => null); });
+  const live = { buyer: [], seller: [] };
+  function mountMotion(who, root) {
+    live[who].forEach(a => a.destroy()); live[who] = [];
+    const play = S.play[who]; S.play[who] = null;
+    root.querySelectorAll('[data-lottie]').forEach(el => {
+      const name = el.dataset.lottie;
+      MOTION[name].then(data => {
+        if (!data || !window.lottie || !el.isConnected) return;
+        const run = !REDUCE && (name === 'splash' || play === name);
+        const a = window.lottie.loadAnimation({ container: el, renderer: 'svg', loop: false, autoplay: run,
+          animationData: JSON.parse(JSON.stringify(data)), rendererSettings: { preserveAspectRatio: 'xMidYMid meet' } });
+        live[who].push(a); el.classList.add('is-live');
+        if (!run) a.addEventListener('DOMLoaded', () => a.goToAndStop(data.op - 1, true));
+      });
+    });
+  }
+  const MARK = '<svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M14 6C6.5 9.5 6.5 30.5 14 34M26 6C33.5 9.5 33.5 30.5 26 34" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><circle cx="20" cy="20" r="5.5" fill="#4B34E5"/></svg>';
   let show = 'both', narrow = false;
 
   const statusIcons =
@@ -128,7 +151,10 @@
   const chip = (tone, icon, text, attrs = '') => `<span class="chip${tone ? ' chip--' + tone : ''}"${attrs}>${icon ? ic(icon) : ''}${text}</span>`;
   const info = (tone, icon, title, detail, trail = '') => `<div class="info"><span class="info__ic${tone ? ' info__ic--' + tone : ''}">${ic(icon)}</span><span class="info__txt"><span class="info__t">${title}</span>${detail ? `<span class="info__d">${detail}</span>` : ''}</span>${trail}</div>`;
   const note = (tone, icon, text) => `<p class="note${tone ? ' note--' + tone : ''}">${ic(icon)}<span>${text}</span></p>`;
-  const hero = (state, icon, label, amount, body, pop) => `<div class="hero${state === 'released' ? ' hero--released' : ''}${pop ? ' is-pop' : ''}"><span class="hero__l">${ic(icon)}${label}</span><span class="hero__a">${amount}</span><span class="hero__b">${body}</span></div>`;
+  const hero = (state, icon, label, amount, body, pop, fx) => {
+    const anim = fx && HAS_LOTTIE ? `<span class="hero__fx hero__fx--${fx}" data-lottie="${fx}" aria-hidden="true"></span>` : '';
+    return `<div class="hero${state === 'released' ? ' hero--released' : ''}${pop ? ' is-pop' : ''}${anim ? ' has-fx' : ''}">${anim}<span class="hero__l">${anim ? '' : ic(icon)}${label}</span><span class="hero__a">${amount}</span><span class="hero__b">${body}</span></div>`;
+  };
   const btn = (label, act, o = {}) => {
     const style = o.style || 'primary';
     const go = style === 'primary' && o.arrow !== false ? `<span class="btn__go">${ic('arrow')}</span>` : '';
@@ -228,7 +254,7 @@
       if (S.handover === 'agent') return ['held-agent' + (S.dropped ? '-in' : ''), `
         <div class="scr__body">${bar('Your purchase', { right: iconBtn('chat', 'chat', 'Message Brian') })}
           ${steps('buyer', 2)}
-          ${hero('held', 'lock', 'Held by Dhamana', ksh(PRICE), 'Brian is paid only when you release it.')}
+          ${hero('held', 'lock', 'Held by Dhamana', ksh(PRICE), 'Brian is paid only when you release it.', false, 'held')}
           <div class="card">
             ${S.dropped ? info('safe', 'check', 'Brian dropped it off', `${when(S.droppedAt)} · sealed bag A-2291`) : info('', 'clock', 'Waiting for Brian to drop it off', `By ${when(S.paidAt + 3 * 1440)}`)}
             ${info('accent', 'store', 'Kilimani Pickup Point (demo)', 'Argwings Kodhek Rd · open until 8 pm', '<span class="info__a">Map</span>')}
@@ -239,7 +265,7 @@
       return ['held', `
         <div class="scr__body">${bar('Your purchase', { right: iconBtn('chat', 'chat', 'Message Brian') })}
           ${steps('buyer', 2)}
-          ${hero('held', 'lock', 'Held by Dhamana', ksh(PRICE), `Brian is paid only when you release it. Kept by a licensed payment partner (demo). You also paid a ${ksh(FEE)} fee.`, last.buyer !== 'held')}
+          ${hero('held', 'lock', 'Held by Dhamana', ksh(PRICE), `Brian is paid only when you release it. Kept by a licensed payment partner (demo). You also paid a ${ksh(FEE)} fee.`, last.buyer !== 'held', 'held')}
           <div class="card">${info('accent', 'pin', 'Meet Brian · Sarit Centre', 'Main entrance · Fri 20 Nov, 2:00 pm', '<span class="info__a">Change</span>')}</div>
           <div class="card card--code"><p class="code__l">Your handover code</p><p class="code">482 916</p><p class="t-body">Read it to Brian once you’re holding the phone. It starts your 30 minutes to check it.</p></div>
           ${note('', 'refund', `No handover by ${when(S.paidAt + 3 * 1440)}? You get ${ksh(TOTAL)} back automatically.`)}
@@ -292,7 +318,7 @@
       return ['dispute' + (replied ? '-r' : ''), `
         <div class="scr__body">${bar('Dispute', { right: iconBtn('chat', 'chat', 'Message Brian') })}
           ${steps('buyer', 'warn')}
-          ${hero('held', 'lock', 'Still held', ksh(PRICE), `Nobody gets paid while we look into it. Your ${ksh(FEE)} fee is held too.`)}
+          ${hero('held', 'lock', 'Still held', ksh(PRICE), `Nobody gets paid while we look into it. Your ${ksh(FEE)} fee is held too.`, false, 'held')}
           <div class="card"><ol class="tl">
             ${tlItem('warn', 'You opened a dispute', `${r[0]} · ${d.photos} photo${d.photos === 1 ? '' : 's'} · ${when(d.openedAt)}`)}
             ${replied ? tlItem('done', `Brian replied: ${REPLIES[d.reply][3]}`, when(d.replyAt)) : tlItem('cur', 'Brian replies', `By ${when(d.openedAt + 1440)}`)}
@@ -325,7 +351,7 @@
       return ['released', `
         <div class="scr__body">${bar('Your purchase', { right: iconBtn('share', 'share', 'Share receipt') })}
           ${steps('buyer', 5)}
-          ${hero('released', 'check', 'Released to Brian', ksh(PRICE), 'The phone is yours. Brian has been paid.', true)}
+          ${hero('released', 'check', 'Released to Brian', ksh(PRICE), 'The phone is yours. Brian has been paid.', true, 'released')}
           <div class="card"><ol class="tl">${saleTimeline('buyer')}</ol></div>
           ${why}
         </div>
@@ -457,7 +483,7 @@
       if (S.handover === 'agent') return ['sold-agent' + (S.dropped ? '-in' : ''), `
         <div class="scr__body">${bar('Sale', { right: iconBtn('chat', 'chat', 'Message Wanjiku') })}
           ${steps('seller', 2)}
-          ${hero('held', 'lock', 'Held for you', ksh(PRICE), S.dropped ? 'Wanjiku has 24 hours to check it after she collects it. Then it’s yours.' : 'Wanjiku paid. Drop the phone at the agent, and it’s yours once she has checked it.', last.seller !== 'sold-agent')}
+          ${hero('held', 'lock', 'Held for you', ksh(PRICE), S.dropped ? 'Wanjiku has 24 hours to check it after she collects it. Then it’s yours.' : 'Wanjiku paid. Drop the phone at the agent, and it’s yours once she has checked it.', last.seller !== 'sold-agent', 'held')}
           <div class="card">
             ${S.dropped ? info('safe', 'check', 'Dropped off', `${when(S.droppedAt)} · sealed bag A-2291`) : info('accent', 'store', 'Drop it at Kilimani Pickup Point (demo)', `Argwings Kodhek Rd · by ${when(S.paidAt + 3 * 1440)}`, '<span class="info__a">Map</span>')}
             ${info('', 'user', 'Wanjiku K. · ID verified', '4 purchases · no disputes')}
@@ -468,7 +494,7 @@
       return ['sold', `
         <div class="scr__body">${bar('Sale', { right: iconBtn('chat', 'chat', 'Message Wanjiku') })}
           ${steps('seller', 2)}
-          ${hero('held', 'lock', 'Held for you', ksh(PRICE), 'Wanjiku paid. You get it when she releases it, or 30 minutes after handover if she does nothing.', last.seller !== 'sold')}
+          ${hero('held', 'lock', 'Held for you', ksh(PRICE), 'Wanjiku paid. You get it when she releases it, or 30 minutes after handover if she does nothing.', last.seller !== 'sold', 'held')}
           <div class="card">
             ${info('accent', 'pin', 'Meet Wanjiku · Sarit Centre', 'Main entrance · Fri 20 Nov, 2:00 pm', '<span class="info__a">Change</span>')}
             ${info('', 'user', 'Wanjiku K. · ID verified', '4 purchases · no disputes')}
@@ -482,7 +508,7 @@
       return ['checking', `
         <div class="scr__body">${bar('Sale', { right: timerChip() })}
           ${steps('seller', 3)}
-          ${hero('held', 'lock', 'Held for you', ksh(PRICE), `Comes to you at ${S.handover === 'agent' ? when(S.ends) : hm(S.ends)} unless Wanjiku reports a problem.`)}
+          ${hero('held', 'lock', 'Held for you', ksh(PRICE), `Comes to you at ${S.handover === 'agent' ? when(S.ends) : hm(S.ends)} unless Wanjiku reports a problem.`, false, 'held')}
           <div class="card card--list card--progress">
             <p class="t-label">Wanjiku’s checklist · ${done} of 5</p>
             ${CHECKS.map(([t], i) => `<div class="chk" role="checkbox" aria-checked="${S.checks[i]}" aria-disabled="true"><span class="chk__box">${ic('check')}</span><span class="info__t">${t.replace('your', 'her')}</span></div>`).join('')}
@@ -506,7 +532,7 @@
       return ['replied', `
         <div class="scr__body">${bar('Dispute', { right: iconBtn('chat', 'chat', 'Message Wanjiku') })}
           ${steps('seller', 'warn')}
-          ${hero('held', 'lock', 'Still held', ksh(PRICE), 'Nobody gets paid while Dhamana looks into it.')}
+          ${hero('held', 'lock', 'Still held', ksh(PRICE), 'Nobody gets paid while Dhamana looks into it.', false, 'held')}
           ${report}
           <div class="card"><ol class="tl">
             ${tlItem('done', `You replied: ${REPLIES[d.reply][0].replace('I’ll', 'you’ll').replace('I disagree', 'you disagree')}`, when(d.replyAt))}
@@ -532,7 +558,7 @@
     if (S.stage === 'released') return ['paid', `
       <div class="scr__body">${bar('Sale', { right: iconBtn('share', 'share', 'Share') })}
         ${steps('seller', 5)}
-        ${hero('released', 'check', 'Paid out', ksh(PRICE), `Sent to your M-Pesa ${SELLER_MPESA} (demo). You paid no fees.`, true)}
+        ${hero('released', 'check', 'Paid out', ksh(PRICE), `Sent to your M-Pesa ${SELLER_MPESA} (demo). You paid no fees.`, true, 'released')}
         <div class="card"><ol class="tl">${saleTimeline('seller')}</ol></div>
         ${note('safe', 'shield', S.released === 'decision' ? 'Dispute settled in your favour. Your record: 13 sales · 1 dispute, settled.' : 'Your record: 13 sales · no disputes.')}
       </div>
@@ -619,8 +645,9 @@
   }
 
   /* ---------- Rendering ---------- */
+  const splashScreen = () => ['splash', `<div class="splash">${HAS_LOTTIE ? '<div class="dh-lottie dh-lottie--splash" data-lottie="splash" aria-hidden="true"></div>' : `<p class="splash__still" aria-hidden="true">${MARK}<span>dhamana</span></p>`}<p class="sr-only">Dhamana is opening</p></div>`];
   function renderPhone(who) {
-    const [key, html] = who === 'buyer' ? buyerScreen() : sellerScreen();
+    const [key, html] = S.splash[who] ? splashScreen() : who === 'buyer' ? buyerScreen() : sellerScreen();
     const host = part(who, '.dh-screens');
     // Re-rendering replaces the buttons, so remember which control had focus and give it back
     const act = document.activeElement;
@@ -633,6 +660,7 @@
     scr.innerHTML = html + '<div class="dh-gesture" aria-hidden="true"></div>';
     host.replaceChildren(scr);
     if (keep) scr.querySelector('.scr__body').scrollTop = keep;
+    mountMotion(who, scr);
     const layer = part(who, '.dh-sheet-layer');
     const sh = sheetHtml(who);
     layer.hidden = !sh;
@@ -757,6 +785,7 @@
   }
   function pay() {
     S.stage = 'held'; S.handover = S.buyer.choice; S.t = at(0, 13, 58); S.paidAt = S.t; S.buyer.sheet = null;
+    S.play = { buyer: 'held', seller: 'held' };
     log(`<b>Wanjiku</b> paid ${ksh(TOTAL)} with M-Pesa (demo)`);
     log(`${ksh(PRICE)} held for Brian · ${ksh(FEE)} fee to Dhamana`, true);
     notify('seller', 'lock', 'accent', 'Wanjiku bought your Galaxy A55', S.handover === 'agent' ? `${ksh(PRICE)} is held for you. Drop it at Kilimani Pickup Point by Sun.` : `${ksh(PRICE)} is held for you. Meet her at Sarit Centre, Fri 2:00 pm.`);
@@ -784,6 +813,7 @@
   function release(by) {
     if (by === 'auto') S.t = S.ends;
     S.stage = 'released'; S.released = by; S.releasedAt = S.t; S.buyer.sheet = null; S.buyer.local = 'released';
+    S.play = { buyer: 'released', seller: 'released' };
     log(by === 'buyer' ? `<b>Wanjiku</b> released the money after checking ${S.checks.filter(Boolean).length} of 5`
       : by === 'auto' ? 'Wanjiku’s time ran out, so the money was released'
       : '<b>Dhamana</b> decided for Brian');
@@ -883,9 +913,13 @@
   }
 
   /* ---------- Paths (the Try another path buttons, and ?path= in the address) ---------- */
-  function start(path) {
+  function start(path, withSplash) {
     clearTimers();
     S = fresh(path === 'list');
+    if (withSplash) {
+      S.splash = { buyer: true, seller: true };
+      later(() => { S.splash = { buyer: false, seller: false }; render(); }, REDUCE ? 900 : 2300);
+    }
     S.quiet = true;
     if (path !== 'list') { const t0 = S.t; S.t = at(0, 9, 40); log('<b>Brian</b> listed a Galaxy A55 for KSh 32,000 · IMEI checked'); S.t = t0; }
     if (path === 'agent') { S.buyer.choice = 'agent'; pay(); }
@@ -897,6 +931,7 @@
     }
     if (path === 'noshow') { pay(); cancel('noshow'); }
     S.quiet = false;
+    if (withSplash) S.play = { buyer: null, seller: null };
     PH.buyer.querySelector('.dh-notif').hidden = true;
     PH.seller.querySelector('.dh-notif').hidden = true;
     last.buyer = last.seller = null;
@@ -1020,7 +1055,7 @@
     showBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.show === eff)));
   }
   showBtns.forEach(b => b.addEventListener('click', () => { show = b.dataset.show; applyShow(); fit(); }));
-  conceptBar.querySelector('[data-reset]').addEventListener('click', () => start(new URLSearchParams(location.search).get('path') || 'start'));
+  conceptBar.querySelector('[data-reset]').addEventListener('click', () => { const p = new URLSearchParams(location.search).get('path'); start(p || 'start', !p); });
 
   function fit() {
     const bar = conceptBar.offsetHeight;
@@ -1041,5 +1076,5 @@
   const sh = q.get('show');
   if (sh === 'buyer' || sh === 'seller') show = sh;
   fit();
-  start(q.get('path') || 'start');
+  start(q.get('path') || 'start', !q.get('path'));
 })();

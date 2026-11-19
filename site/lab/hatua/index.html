@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="only light">
+<title>Hatua: see which step of an AI agent broke, fix it and run it again · Ted Thie</title>
+<meta name="description" content="A concept web app where an operations lead sets up an AI agent that checks supplier invoices against purchase orders. When a run fails, she sees which step broke and why, fixes that step and reruns from it.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/hatua/">
+<meta property="og:title" content="Hatua: find the broken step, fix it, run it again">
+<meta property="og:description" content="An AI agent checks supplier invoices against purchase orders. When one run fails, the person who owns it can see why in plain words and rerun from the step she fixed. A concept by Ted Thie.">
+<meta property="og:url" content="https://tedthie.cc/lab/hatua/">
+<meta name="theme-color" content="#15161A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="hatua.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<div class="concept" id="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <a class="concept__home" href="/fun#labs">More from the Lab</a>
+  <p class="concept__label"><strong>Hatua</strong> <span>Every company, invoice and number is invented. Nothing is sent and nobody is paid.</span></p>
+  <div class="concept__view" role="group" aria-label="View as">
+    <span class="concept__view-label">View as</span>
+    <button type="button" data-who="achieng" aria-pressed="true">Achieng · operations</button>
+    <button type="button" data-who="kamau" aria-pressed="false">Kamau · finance</button>
+  </div>
+  <label class="concept__state"><span class="concept__view-label">Add a state</span>
+    <select id="state-picker">
+      <option value="">Choose…</option>
+      <option value="first">First run, no runs yet</option>
+      <option value="permission">Permission missing</option>
+      <option value="unreadable">Can’t read the invoice</option>
+      <option value="duplicate">Duplicate invoice</option>
+      <option value="etims">eTIMS details missing</option>
+    </select>
+  </label>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<p class="narrow-note">Hatua is designed for a desktop browser. On this screen it scrolls sideways.</p>
+
+<div class="stage" id="stage">
+  <h1 class="sr-only">Hatua: an AI agent that checks supplier invoices against purchase orders, and shows which step broke</h1>
+  <div class="ha" id="app" data-who="achieng">
+    <aside class="ha-side" id="side" aria-label="Hatua"></aside>
+    <main class="ha-main" id="main" tabindex="-1"><noscript><p class="noscript">This concept needs JavaScript to run.</p></noscript></main>
+  </div>
+</div>
+
+<div class="ha-toast" id="toast" role="status" aria-live="polite"></div>
+
+</body>
+</html>

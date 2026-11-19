@@ -1160,6 +1160,16 @@
       .then(function (key) { return subtle.decrypt({ name: 'AES-GCM', iv: b64(payload.iv) }, key, b64(payload.data)); })
       .then(function (buf) { return JSON.parse(new TextDecoder().decode(buf)); });
   }
+  /* Sections that live outside the encrypted payload, such as the link to a gated prototype.
+     A <template data-nda-insert> on the page is added once it unlocks: before the element named in
+     data-before (the "Next project" band) when there is one, otherwise at the end. */
+  function insertExtras(root) {
+    Array.prototype.forEach.call(document.querySelectorAll('template[data-nda-insert]'), function (t) {
+      var before = t.getAttribute('data-before') && root.querySelector(t.getAttribute('data-before'));
+      var frag = t.content.cloneNode(true);
+      if (before) before.parentNode.insertBefore(frag, before); else (root.querySelector('main') || root).appendChild(frag);
+    });
+  }
   function initGate() {
     var root = document.querySelector('[data-nda-root]');
     var source = document.getElementById('nda-payload');
@@ -1176,6 +1186,7 @@
       // Images shared by several places in a case study travel once, as an asset map.
       if (doc.assets) html = html.replace(/asset:([a-z0-9-]+)/g, function (m, k) { return doc.assets[k] || m; });
       root.innerHTML = html;
+      insertExtras(root);
       if (doc.title) document.title = doc.title;
       storeSet('tt-nda', password);
       initBrandSwitcher(root);

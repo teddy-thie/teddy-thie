@@ -8,6 +8,7 @@
   var S = null;          // prototype state
   var root = null;
   var lastRoute = '';
+  var cur = '#/intro';    // current route; kept in memory so the app also runs where the URL can't change (previews, sandboxed frames)
   var draft = null;      // in-progress trade on the question screen
   var t0 = Date.now();
   var STORE = 'mm-proto-v1';
@@ -413,7 +414,7 @@
     save();
     toast((was ? 'Trade updated' : 'Trade placed') + ' · Q' + x.id + ' · ' + fmtForecast(x.fmt, clean) + ' · ' + n0(draft.stake) + ' coins');
     draft = null;
-    location.hash = '#/round';
+    go('#/round');
   }
 
   /* Results */
@@ -525,8 +526,14 @@
   }
 
   /* ---------- router ---------- */
+  function go(h, replace) {
+    cur = h;
+    // Keep the address bar in step where the page owns its URL; inside a sandboxed preview this throws and is skipped.
+    try { if (location.protocol === 'http:' || location.protocol === 'https:' || location.protocol === 'file:') history[replace ? 'replaceState' : 'pushState'](null, '', h); } catch (e) { /* in-memory only */ }
+    render(false);
+  }
   function route() {
-    var h = (location.hash || '').replace(/^#\/?/, '').split('/');
+    var h = (cur || '').replace(/^#\/?/, '').split('/');
     var a = h[0] || 'intro';
     if (a === 'round' && h[1] === 'q' && h[2]) return { name: 'question', id: +h[2] };
     if (a === 'results' && h[1] === 'q' && h[2]) return { name: 'result', id: +h[2] };
@@ -535,8 +542,8 @@
     return { name: 'home' };
   }
   function render(keepScroll) {
-    var r = route(), key = location.hash, html;
-    if (r.name === 'question' && S.phase !== 'open' && S.tour == null) { location.replace('#/round'); return; }
+    var r = route(), key = cur, html;
+    if (r.name === 'question' && S.phase !== 'open' && S.tour == null) { go('#/round', true); return; }
     if (r.name !== 'question') draft = null;
     switch (r.name) {
       case 'intro': html = viewIntro(); break;
@@ -563,7 +570,7 @@
   function startTour() { S.tour = 0; goTour(); }
   function goTour() {
     var st = D.tour[S.tour];
-    if ('#' + st.route === location.hash) render(true); else location.hash = '#' + st.route;
+    if ('#' + st.route === cur) render(true); else go('#' + st.route);
   }
   function endTour() { S.tour = null; var p = $('.tour-pop'); if (p) p.remove(); $$('.tour-target').forEach(function (e) { e.classList.remove('tour-target'); }); var b = $('.tour-btn'); if (b) b.classList.remove('is-active'); }
   function renderTour() {
@@ -635,6 +642,8 @@
 
   /* ---------- events ---------- */
   function onClick(e) {
+    var link = e.target.closest('a[href^="#/"]');
+    if (link && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { e.preventDefault(); go(link.getAttribute('href')); return; }
     var t = e.target.closest('[data-act]');
     if (!t) return;
     var act = t.getAttribute('data-act');
@@ -661,9 +670,9 @@
         if (t.getAttribute('data-k') === 'home' && S.phase !== 'open') S.phase = 'open';
         save(); endTour();
         if (t.getAttribute('data-k') === 'theme') render(true);
-        else if (location.hash === '#/home') render(true); else location.hash = '#/home';
+        else if (cur === '#/home') render(true); else go('#/home');
         break;
-      case 'demo-intro': endTour(); location.hash = '#/intro'; break;
+      case 'demo-intro': endTour(); go('#/intro'); break;
       case 'demo-reset': var keep = { theme: S.theme, demoOpen: S.demoOpen, demoHidden: S.demoHidden }; S = freshState(); Object.assign(S, keep); save(); endTour(); render(true); toast('Answers reset to the starting state'); break;
     }
   }
@@ -697,11 +706,12 @@
       root = mount || document.getElementById('mm');
       load();
       applyTheme();
-      if (!location.hash) location.replace('#/intro');
+      cur = /^#\/./.test(location.hash) ? location.hash : '#/intro';
       document.addEventListener('click', onClick);
       document.addEventListener('input', onInput);
       document.addEventListener('keydown', onKey);
-      window.addEventListener('hashchange', function () { render(false); });
+      window.addEventListener('hashchange', function () { if (/^#\/./.test(location.hash) && location.hash !== cur) { cur = location.hash; render(false); } });
+      window.addEventListener('popstate', function () { cur = /^#\/./.test(location.hash) ? location.hash : '#/intro'; render(false); });
       window.addEventListener('resize', placeTour);
       window.addEventListener('scroll', placeTour, { passive: true });
       setInterval(tick, 1000);

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>Ujira ID check: every failure has a way forward · Personal concept · Ted Thie</title>
+<meta name="description" content="A personal concept: the ID check inside Ujira, a payouts app for Kenyans paid by foreign clients. Glare is caught before the photo, an expired passport is caught before the selfie, and every failure keeps what already worked.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/ujira-id/">
+<meta property="og:title" content="Ujira ID check: every failure has a way forward">
+<meta property="og:description" content="An ID check where glare, an expired passport, a dark selfie, a register that's down and an M-Pesa line in someone else's name each get their own way forward. A personal concept by Ted Thie.">
+<meta property="og:url" content="https://tedthie.cc/lab/ujira-id/">
+<meta name="theme-color" content="#0D1B2A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&amp;family=Instrument+Sans:wght@400;600&amp;family=Inter:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../ujira/ujira.css">
+<link rel="stylesheet" href="id.css">
+<script src="id.js" defer></script>
+</head>
+<body>
+
+<div class="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <a class="concept__home" href="/fun#labs">More from the Lab</a>
+  <p class="concept__label"><strong>Ujira · ID check</strong> <span>Personal concept.<span class="concept__more"> Every name, ID number and photo is invented. The camera is faked, and nothing is uploaded or stored.</span></span></p>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<div class="stage" id="stage">
+  <section class="stage__app" id="stage-app" aria-label="Wanjiru's app">
+    <div class="device" id="device">
+      <div class="uj" id="app">
+        <div class="statusbar" aria-hidden="true"><span>9:41</span><span class="statusbar__icons"></span></div>
+        <div class="screens" id="screens"><noscript><p class="noscript">This concept needs JavaScript to run.</p></noscript></div>
+        <div class="banner-layer" id="banner"></div>
+        <div class="sheet-layer" id="sheet" hidden></div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <div class="homebar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <aside class="demo" id="demo" aria-labelledby="demo-title"></aside>
+  </section>
+</div>
+
+</body>
+</html>

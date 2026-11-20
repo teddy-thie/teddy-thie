@@ -21,6 +21,11 @@
 .circle--warn { background: var(--amber-tint); color: var(--amber); }
 .circle--soft { background: var(--green-tint); color: var(--green-text); }
 .opt .circle { width: 36px; height: 36px; background: var(--bg); color: var(--ink); }
+/* K2: the IDs as a 2 × 2 grid of cards, like the Destination card in Figma */
+.opt-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.opt-grid .opt { position: relative; flex-direction: column; align-items: flex-start; gap: 12px; min-height: 116px; padding: 14px; text-align: left; }
+.opt-grid .opt .radio { position: absolute; top: 14px; right: 14px; box-shadow: none; }
+.opt-grid .opt[aria-checked="true"] .radio { background: var(--green); color: var(--ink); }
 .opt[aria-checked="true"] .circle { background: #fff; color: var(--blue-text); }
 .text-btn { color: var(--blue-text); font-weight: 600; }
 
@@ -30,19 +35,26 @@
 .cam-top__titles { position: absolute; left: 72px; right: 72px; top: 6px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
 .cam-top__titles h1 { font-size: 15px; font-weight: 600; }
 .cam-hint { text-align: center; margin-top: 44px; }
-.vf { position: relative; margin: 26px 32px 0; height: 208px; flex: none; border-radius: 18px; background: var(--navy-raised); box-shadow: inset 0 0 0 3px var(--vf-line, var(--navy-line)); overflow: hidden; transition: box-shadow .2s; }
+.vf { position: relative; margin: 26px 32px 0; height: 208px; flex: none; border-radius: 18px; background: var(--navy); box-shadow: inset 0 0 0 3px var(--vf-line, var(--navy-line)); overflow: hidden; transition: box-shadow .2s; }
 .vf.is-found { --vf-line: var(--green); }
-.vf.is-glare { --vf-line: var(--amber-tint); }
-.vf__photo { position: absolute; left: 22px; top: 56px; width: 76px; height: 96px; border-radius: 10px; background: var(--navy-line); }
+.vf.is-glare, .vf.is-far, .vf.is-blur, .vf.is-cut { --vf-line: var(--amber-tint); }
+/* The card itself, so it can sit too far away, blur or slide out of frame */
+.vf__card { position: absolute; inset: 8px; border-radius: 12px; background: var(--navy-raised); transition: transform .55s cubic-bezier(.2, .8, .2, 1), filter .45s; }
+.vf.is-far .vf__card { transform: scale(.58); }
+.vf.is-blur .vf__card { filter: blur(3.5px); }
+.vf.is-cut .vf__card { transform: translateX(38%); }
+.vf__photo { position: absolute; left: 14px; top: 48px; width: 76px; height: 96px; border-radius: 10px; background: var(--navy-line); }
 .vf__line { position: absolute; height: 10px; border-radius: 999px; background: var(--navy-line); }
-.vf--passport .vf__photo { top: 46px; }
-.vf__demo { position: absolute; right: 22px; top: 22px; font-size: 11px; font-weight: 600; letter-spacing: .44px; color: var(--hero-muted); }
+.vf--passport .vf__photo { top: 38px; }
+.vf--doc { height: 300px; margin: 18px 70px 0; }
+.vf--doc .vf__line { height: 8px; }
+.vf__demo { position: absolute; right: 14px; top: 14px; font-size: 11px; font-weight: 600; letter-spacing: .44px; color: var(--hero-muted); }
 .vf__glare { position: absolute; left: 128px; top: 30px; width: 170px; height: 96px; border-radius: 50%; background: rgba(255, 255, 255, .6); filter: blur(18px); opacity: 0; transition: opacity .35s; }
 .vf.is-glare .vf__glare { opacity: 1; }
 .cam-status { align-self: center; margin-top: 24px; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 14px; border-radius: 999px; background: var(--navy-raised); color: #fff; font-size: 13px; text-align: center; }
 .cam-status--pos { background: var(--green); color: var(--ink); }
 .cam-status--warn { background: var(--amber-tint); color: var(--amber); }
-.cam-tips { display: flex; justify-content: center; gap: 16px; margin-top: 18px; font-size: 12px; font-weight: 500; color: var(--hero-muted); }
+.cam-tips { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 12px; padding: 0 16px; margin-top: 18px; font-size: 12px; font-weight: 500; color: var(--hero-muted); }
 .cam-tips span { display: inline-flex; align-items: center; gap: 4px; }
 .cam-tips .is-warn { color: var(--amber-tint); }
 .cam-tips .is-off { opacity: .45; }
@@ -64,6 +76,10 @@
 .idcard dl { margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .idcard dt { font-size: 12px; font-weight: 500; color: var(--muted); }
 .idcard dd { margin: 0; font-weight: 600; }
+.idcard--page { gap: 12px; }
+.idcard__text { font-size: 13px; line-height: 1.5; }
+.page-lines { display: flex; flex-direction: column; gap: 8px; }
+.page-lines span { height: 8px; border-radius: 999px; background: var(--bg); }
 .idcard__code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; letter-spacing: 1px; line-height: 1.6; color: var(--muted); background: var(--bg); border-radius: 8px; padding: 8px 10px; word-break: break-all; }
 .review-q { margin: 22px 32px 0; text-align: center; display: flex; flex-direction: column; gap: 6px; }
 .readout { margin: 14px 32px 0; background: var(--navy-raised); border-radius: 20px; padding: 4px 16px; }
@@ -101,11 +117,24 @@
 .spin { animation: spin 1.1s linear infinite; }
 .below { margin: 16px 24px 0; }
 
+/* ---------- Names, other phone, other ways in ---------- */
+.compare { margin: 0; background: var(--bg); border-radius: 14px; padding: 2px 14px; }
+.compare div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 0; }
+.compare div + div { border-top: 1px solid var(--line-soft); }
+.compare dt { font-size: 13px; color: var(--muted); }
+.compare dd { margin: 0; font-weight: 600; text-align: right; }
+.alt-links { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; font-size: 14px; }
+.alt-links .text-btn { text-align: left; }
+.qr { position: relative; align-self: center; width: 188px; height: 188px; padding: 14px; border-radius: 20px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+.qr svg { display: block; width: 100%; height: 100%; fill: var(--ink); }
+.qr__demo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 2px 6px; border-radius: 6px; background: #fff; font-size: 11px; font-weight: 700; letter-spacing: .44px; color: var(--blue-text); }
+
 /* ---------- M-Pesa number ---------- */
 .tel { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 14px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
 .tel:focus-within { box-shadow: inset 0 0 0 2px var(--blue); }
 .tel__cc { color: var(--muted); font-weight: 600; padding-right: 12px; border-right: 1px solid var(--line-soft); }
 .tel input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; font-size: 15px; outline: none; }
+.tel input:focus-visible { outline: none; }
 .namecheck { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; }
 .namecheck > span:last-child { flex: 1; min-width: 0; }
 .namecheck .circle { width: 32px; height: 32px; }
@@ -127,7 +156,7 @@
 .held .circle { width: 32px; height: 32px; background: var(--blue-tint); color: var(--blue-text); }
 
 @media (prefers-reduced-motion: reduce) {
-  .face__ring, .face__icon, .vf, .vf__glare { transition: none; }
+  .face__ring, .face__icon, .vf, .vf__glare, .vf__card { transition: none; }
   .banner { animation: none; }
   .spin { animation: none; }
 }
@@ -136,3 +165,8 @@
   .banner-layer { top: 8px; }
 }
 /* tokens:skip-end */
+
+/* The "What we'd measure" list in the Try it panel: site UI, so it uses the site's tokens. */
+.demo__metrics { margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.demo__metrics dt { color: var(--white); font-size: var(--text-small); }
+.demo__metrics dd { margin: 0; font-family: var(--f-mono); font-size: var(--text-label); color: var(--night-faint); }

@@ -1566,3 +1566,20 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
+
+/* Social icons: on touch screens (no hover), play each icon once when it scrolls into view */
+(function () {
+  var links = document.querySelectorAll('.social');
+  if (!links.length || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(hover: hover)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var el = e.target, i = Array.prototype.indexOf.call(links, el) % 3;
+      setTimeout(function () { el.classList.add('is-played'); setTimeout(function () { el.classList.remove('is-played'); }, 1100); }, 250 + i * 180);
+      io.unobserve(el);
+    });
+  }, { threshold: 0.6 });
+  links.forEach(function (el) { io.observe(el); });
+})();

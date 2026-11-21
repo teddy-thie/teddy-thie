@@ -1583,3 +1583,16 @@
   }, { threshold: 0.6 });
   links.forEach(function (el) { io.observe(el); });
 })();
+
+/* Footer: copy email address */
+(function () {
+  document.querySelectorAll('.copy-email').forEach(function (btn) {
+    var label = btn.querySelector('.copy-email__label');
+    btn.addEventListener('click', function () {
+      var email = btn.getAttribute('data-email');
+      var done = function () { label.textContent = 'Copied'; btn.setAttribute('aria-label', 'Email address copied'); setTimeout(function () { label.textContent = 'Copy'; btn.setAttribute('aria-label', 'Copy email address'); }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(email).then(done, function () { window.prompt('Copy the email address', email); }); }
+      else { window.prompt('Copy the email address', email); }
+    });
+  });
+})();

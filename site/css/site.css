@@ -1326,3 +1326,41 @@ html.lb-open { overflow: hidden; }
   .fun-item__media img, .fun-item__media video, .lab-card__cover img { transition: none; }
   .fun-item:hover .fun-item__media img, .fun-item:hover .fun-item__media video, .lab-card:hover .lab-card__cover img { transform: none; }
 }
+
+/* =========================================================
+   SOCIAL ICONS: hover micro-animations (email, profile, ball)
+   ========================================================= */
+.social { display: inline-flex; align-items: center; gap: 6px /* exempt: icon gap */; }
+.si { flex: none; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.si * { transform-box: fill-box; transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .25s ease; }
+/* Email: flap folds open, a letter peeks out */
+.si-flap { transform-origin: 50% 0%; }
+.si-letter { opacity: 0; transform: translateY(3px); }
+.social:is(:hover, :focus-visible, .is-played) .si-flap { transform: scaleY(-1) translateY(-1px); }
+.social:is(:hover, :focus-visible, .is-played) .si-letter { opacity: 1; transform: translateY(-2px); transition-delay: .08s; }
+/* Profile card: card lifts, avatar pops, lines draw in */
+.si-cardbox { transform-origin: 50% 100%; }
+.si-avatar, .si-base { transform-origin: 50% 50%; }
+.si-l1, .si-l2 { stroke-dasharray: 6; stroke-dashoffset: 0; transition: stroke-dashoffset .4s ease; }
+.social:is(:hover, :focus-visible, .is-played) .si-cardbox { transform: translateY(-1.5px) rotate(-3deg); }
+.social:is(:hover, :focus-visible, .is-played) .si-avatar { transform: scale(1.18); }
+.social:is(:hover, :focus-visible, .is-played) .si-l1 { animation: si-draw .45s ease both; }
+.social:is(:hover, :focus-visible, .is-played) .si-l2 { animation: si-draw .45s .1s ease both; }
+@keyframes si-draw { from { stroke-dashoffset: 6; } to { stroke-dashoffset: 0; } }
+/* Ball: hops, spins and squashes on landing */
+.si-ballg { transform-origin: 50% 50%; }
+.si-shadow { transform-origin: 50% 50%; opacity: .5; }
+.social:is(:hover, :focus-visible, .is-played) .si-ballg { animation: si-bounce .7s cubic-bezier(.3,0,.3,1) both; }
+.social:is(:hover, :focus-visible, .is-played) .si-shadow { animation: si-shadow .7s cubic-bezier(.3,0,.3,1) both; }
+@keyframes si-bounce {
+  0% { transform: translateY(0) rotate(0) scale(1, 1); }
+  40% { transform: translateY(-4px) rotate(160deg) scale(.96, 1.04); }
+  72% { transform: translateY(.5px) rotate(300deg) scale(1.08, .92); }
+  100% { transform: translateY(0) rotate(360deg) scale(1, 1); }
+}
+@keyframes si-shadow { 0%, 100% { transform: scaleX(1); opacity: .5; } 40% { transform: scaleX(.55); opacity: .2; } 75% { transform: scaleX(1.15); opacity: .6; } }
+@media (prefers-reduced-motion: reduce) {
+  .si *, .social .si * { transition: none !important; animation: none !important; }
+  .social .si-letter { opacity: 0 !important; }
+  .social .si-flap, .social .si-cardbox, .social .si-avatar { transform: none !important; }
+}

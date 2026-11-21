@@ -1364,3 +1364,14 @@ html.lb-open { overflow: hidden; }
   .social .si-letter { opacity: 0 !important; }
   .social .si-flap, .social .si-cardbox, .social .si-avatar { transform: none !important; }
 }
+
+/* Footer contact: action button plus copyable address */
+.footer-contact { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-3); }
+.pill-button .pill-arrow { display: inline-block; margin-left: 8px /* exempt: icon gap */; transition: transform .25s ease; }
+.pill-button:hover .pill-arrow, .pill-button:focus-visible .pill-arrow { transform: translateX(4px); }
+.footer-addr { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--text-small); color: var(--night-faint); }
+.copy-email { display: inline-flex; align-items: center; gap: 4px /* exempt: icon gap */; min-height: 24px; padding: 2px 8px; font: inherit; font-size: var(--text-label); color: inherit; background: transparent; border: 1px solid var(--night-rule); border-radius: 6px; cursor: pointer; }
+.copy-email svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.copy-email:hover, .copy-email:focus-visible { color: var(--on-cobalt); border-color: currentColor; }
+@media (max-width: 720px) { .footer-contact { align-items: flex-start; } }
+@media (prefers-reduced-motion: reduce) { .pill-button .pill-arrow { transition: none; } }

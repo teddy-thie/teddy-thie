@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Wimbi: has the BTC market turned? Three answers in ten seconds · Ted Thie</title>
+<meta name="description" content="A concept dashboard for BTC perpetual futures that answers three questions in words first: are traders mostly long or short, were there big liquidations just now, and is it getting expensive to hold. Built on a dated snapshot of real public data from Binance, OKX and Bybit.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/wimbi/">
+<meta property="og:title" content="Wimbi: has the BTC market turned?">
+<meta property="og:description" content="Three answer cards before any chart: long or short, big liquidations just now, and the cost of holding. Real public data from Binance, OKX and Bybit, captured 21 Nov 2026. A concept by Ted Thie.">
+<meta property="og:url" content="https://tedthie.cc/lab/wimbi/">
+<meta name="theme-color" content="#0A0D13">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;family=Instrument+Sans:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="wimbi.css">
+<script src="data/btc-2026-11-21.js" defer></script>
+<script src="rules.js" defer></script>
+<script src="wimbi.js" defer></script>
+</head>
+<body>
+
+<div class="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <a class="concept__home" href="/fun#labs">More from the Lab</a>
+  <p class="concept__label"><strong>Wimbi · BTC perpetual futures</strong> <span>Personal concept on real public data from Binance, OKX and Bybit, captured 21 Nov 2026 at 09:55 UTC. Not live, and not investment advice.</span></p>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<div class="stage" id="stage">
+  <main class="wb" id="wb" aria-label="Wimbi dashboard">
+    <noscript><p class="wb-noscript">Wimbi needs JavaScript to draw the answers from its data file.</p></noscript>
+  </main>
+
+  <aside class="try" id="try" aria-labelledby="try-title">
+    <h2 class="try__title" id="try-title">Try it</h2>
+    <p class="try__intro">Everything runs in your browser from one saved file. Pick a moment, then read the page.</p>
+
+    <fieldset class="try__group">
+      <legend>Moment</legend>
+      <label class="opt"><input type="radio" name="moment" value="now" checked><span>Now · 09:55 UTC, 21 Nov</span></label>
+      <label class="opt"><input type="radio" name="moment" value="flush"><span>The flush · 15:55 UTC, 20 Nov</span></label>
+      <label class="opt"><input type="radio" name="moment" value="low"><span>The low · 06:15 UTC, 21 Nov</span></label>
+      <p class="try__note">The 4-hour line and the three cards recompute from the same file.</p>
+    </fieldset>
+
+    <fieldset class="try__group">
+      <legend>Feed</legend>
+      <label class="opt"><input type="radio" name="feed" value="0" checked><span>Snapshot</span></label>
+      <label class="opt"><input type="radio" name="feed" value="2"><span>Pretend live, 2 minutes old</span></label>
+      <label class="opt"><input type="radio" name="feed" value="15"><span>Pretend live, 15 minutes old</span></label>
+      <label class="opt"><input type="radio" name="feed" value="60"><span>Pretend live, 1 hour old</span></label>
+      <p class="try__note">At 15 minutes the stamp turns amber. At 1 hour the answers dim.</p>
+    </fieldset>
+
+    <fieldset class="try__group">
+      <legend>Colour</legend>
+      <label class="opt opt--check"><input type="checkbox" name="greys"><span>Show the page in greys</span></label>
+      <p class="try__note">Long and short stay readable by label and position.</p>
+    </fieldset>
+
+    <div class="try__group">
+      <h3 class="try__legend">Exchanges</h3>
+      <button type="button" class="btn btn--secondary" data-open="disagree">Open the disagreement view</button>
+    </div>
+
+    <div class="try__group">
+      <h3 class="try__legend">Time me</h3>
+      <p class="try__note try__note--body">Three rounds, one per moment, of the three questions. It records your seconds and whether you were right, in memory only.</p>
+      <button type="button" class="btn btn--primary" data-timeme>Start Time me</button>
+    </div>
+  </aside>
+</div>
+
+<dialog class="sheet" id="disagree" aria-labelledby="disagree-title"></dialog>
+<dialog class="sheet" id="results" aria-labelledby="results-title"></dialog>
+
+<div class="tm" id="tm" hidden>
+  <div class="tm__inner">
+    <div class="tm__q">
+      <p class="tm__progress" id="tm-progress"></p>
+      <h2 class="tm__question" id="tm-question" aria-live="polite"></h2>
+      <div class="tm__chips" id="tm-chips" role="group" aria-labelledby="tm-question"></div>
+    </div>
+    <div class="tm__timer">
+      <p class="tm__secs" id="tm-secs" aria-hidden="true">0.0 s</p>
+      <button type="button" class="tm__skip" data-tm-skip>Skip this question</button>
+      <button type="button" class="tm__skip" data-tm-quit>Stop Time me</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only dark">
+<title>Jasiri tickets: pick your seat, resell at face value · Concept · Ted Thie</title>
+<meta name="description" content="A ticketing concept for Jasiri. Pick a numbered seat in a 3D arena that faces the court, pay with M-Pesa, and sell or send a ticket inside the app at face value or less.">
+<link rel="icon" href="../../favicon.ico?v=2" sizes="48x48">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="canonical" href="https://tedthie.cc/lab/jasiri-tickets/">
+<meta property="og:title" content="Jasiri tickets: pick your seat, resell at face value">
+<meta property="og:description" content="Seat-level picking in a 3D arena, M-Pesa checkout, and resale inside the app at face value with no seller fee. A ticketing concept for Jasiri by Ted Thie.">
+<meta property="og:url" content="https://tedthie.cc/lab/jasiri-tickets/">
+<meta name="theme-color" content="#0B0A14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@300;400;500&amp;family=Instrument+Sans:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="tickets.css">
+<script src="icons.js" defer></script>
+<script src="arena.js" defer></script>
+<script src="data.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<div class="concept">
+  <a class="concept__home" href="/">tedthie.cc</a>
+  <a class="concept__home" href="/fun#labs">More from the Lab</a>
+  <p class="concept__label"><strong>Jasiri tickets</strong> <span>A ticketing concept for Jasiri.<span class="concept__more"> Games, seats, prices and people are samples; nothing here sells real tickets or moves money.</span></span></p>
+  <div class="concept__view" role="group" aria-label="Show">
+    <span class="concept__view-label">Show</span>
+    <button type="button" data-view="fan" aria-pressed="true">Fan app</button>
+    <button type="button" data-view="steward" aria-pressed="false">Steward scanner</button>
+  </div>
+  <button type="button" class="concept__reset" data-reset>Reset demo</button>
+</div>
+
+<div class="stage" id="stage">
+  <section class="stage__app" aria-label="Jasiri tickets app">
+    <div class="device" id="device">
+      <div class="jt" id="app">
+        <div class="screen" id="screen"><noscript><p class="noscript">This concept needs JavaScript to run.</p></noscript></div>
+        <div class="sheet-layer" id="sheet" hidden></div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+    <aside class="demo" id="demo" aria-label="Try it"></aside>
+  </section>
+</div>
+
+<svg class="defs" aria-hidden="true" focusable="false"><defs><pattern id="jt-hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#16142A"/><line x1="0" y1="0" x2="0" y2="5" stroke="#3A3560" stroke-width="2"/></pattern></defs></svg>
+
+</body>
+</html>

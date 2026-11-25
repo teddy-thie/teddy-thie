@@ -105,7 +105,7 @@ body { background: var(--night); display: flex; flex-direction: column; }
 
 /* ---------- Screen shell ---------- */
 .screen { position: absolute; inset: 0; }
-.scr { height: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; scrollbar-width: none; }
+.scr { position: absolute; inset: 0; z-index: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; scrollbar-width: none; }
 .scr::-webkit-scrollbar { display: none; }
 .scr > * { flex: none; }
 .scr > .sheet { flex: 1 0 auto; }
@@ -322,9 +322,11 @@ button.lst:hover { background: #FAFAFF; box-shadow: inset 0 0 0 1px var(--pl); }
 
 /* ---------- Sell and send sheet ---------- */
 .sheet-layer { position: absolute; inset: 0; z-index: 8; }
-.scrim { position: absolute; inset: 0; width: 100%; background: rgba(5, 4, 12, .62); animation: fade .2s ease-out; }
-.sheet--float { position: absolute; left: 0; right: 0; bottom: 0; max-height: 92%; overflow-y: auto; padding-bottom: 24px; scrollbar-width: none; animation: up .28s cubic-bezier(.2, .8, .2, 1); }
-@keyframes up { from { transform: translateY(40%); opacity: 0; } }
+.scrim { position: absolute; inset: 0; width: 100%; background: rgba(5, 4, 12, .62); }
+.scrim.enter { animation: fade .24s ease-out; }
+.sheet--float { position: absolute; left: 0; right: 0; bottom: 0; max-height: 92%; overflow-y: auto; padding-bottom: 24px; scrollbar-width: none; }
+.sheet--float.enter { animation: up .52s cubic-bezier(.25, 0, .25, 1.07); }
+@keyframes up { from { transform: translateY(105%); } }
 @keyframes fade { from { opacity: 0; } }
 .seg { display: flex; background: var(--ice); border-radius: 999px; padding: 4px; }
 .seg button { flex: 1; text-align: center; padding: 10px 0; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--pm); }
@@ -386,9 +388,18 @@ button.lst:hover { background: #FAFAFF; box-shadow: inset 0 0 0 1px var(--pl); }
 .toast { position: absolute; left: 50%; bottom: 104px; z-index: 9; width: max-content; max-width: 316px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
   background: var(--tx); color: var(--pt); font-size: 13px; line-height: 1.4; padding: 11px 16px; border-radius: 18px; box-shadow: 0 12px 30px rgba(0, 0, 0, .35); transition: opacity .2s, transform .2s; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast--dark { background: var(--pt); color: #FFFFFF; }
 .toast:empty { display: none; }
 
 .defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ---------- Screen transitions (shapes that carry one screen into the next) ---------- */
+.tx { position: absolute; pointer-events: none; }   /* no z-index: page order decides what sits on top */
+.tx-card { background: var(--climb); }
+.qt, .sg-row, .seat rect, .pulse { transform-box: fill-box; transform-origin: center; }
+.pulse { fill: none; stroke: var(--cobalt); stroke-width: 2.5; pointer-events: none; }
+.shine { position: absolute; left: 0; top: 0; width: 110px; height: 118px; pointer-events: none; transform: translateX(-160px) skewX(-18deg);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .38), rgba(255, 255, 255, 0)); }
 
 @media (prefers-reduced-motion: reduce) {
   .jt *, .jt *::before, .jt *::after { animation: none !important; transition: none !important; }

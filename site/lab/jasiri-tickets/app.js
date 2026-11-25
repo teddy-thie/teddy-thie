@@ -147,12 +147,13 @@
     var id = S.block, m = SEATS[id], rows = D.rowsFor(id), sw = 12, gp = 3, ai = 10, span = N * (sw + gp) - gp + ai, x0 = (268 - span) / 2, H = 49 + rows.length * 16 + 2;
     function sx(n) { return x0 + (n - 1) * (sw + gp) + (n > 7 ? ai : 0); }
     var pickedRows = S.picked.map(function (s) { return s.charAt(0); });
-    var g = '<rect x="' + (x0 - 6) + '" y="0" width="' + (span + 12) + '" height="24" rx="12" fill="#14122B"/><text x="134" y="16" text-anchor="middle" font-size="11" fill="#EDEBFF">Court this way ↑</text>' +
+    var g = '<g class="sg-row"><rect x="' + (x0 - 6) + '" y="0" width="' + (span + 12) + '" height="24" rx="12" fill="#14122B"/><text x="134" y="16" text-anchor="middle" font-size="11" fill="#EDEBFF">Court this way ↑</text>' +
       (id.charAt(0) !== 'V' ? '<rect x="' + (x0 - 6) + '" y="28" width="' + (span + 12) + '" height="4" rx="2" fill="#E5484D"/>' : '');
     for (var n = 1; n <= N; n++) g += '<text x="' + (sx(n) + 6) + '" y="43" text-anchor="middle" class="sg-n">' + n + '</text>';
+    g += '</g>';
     rows.forEach(function (r, ri) {
       var y = 49 + ri * 16, on = pickedRows.indexOf(r) >= 0, c = on ? '#002FF1' : '#9A9AB8';
-      g += '<text x="' + (x0 - 12) + '" y="' + (y + 9) + '" text-anchor="middle" class="sg-r" fill="' + c + '">' + r + '</text><text x="' + (x0 + span + 12) + '" y="' + (y + 9) + '" text-anchor="middle" class="sg-r" fill="' + c + '">' + r + '</text>';
+      g += '<g class="sg-row"><text x="' + (x0 - 12) + '" y="' + (y + 9) + '" text-anchor="middle" class="sg-r" fill="' + c + '">' + r + '</text><text x="' + (x0 + span + 12) + '" y="' + (y + 9) + '" text-anchor="middle" class="sg-r" fill="' + c + '">' + r + '</text>';
       for (var n2 = 1; n2 <= N; n2++) {
         var s = r + n2, st = m[s], mine = S.picked.indexOf(s) >= 0, x = sx(n2), f, sk, bk;
         if (mine) { f = '#002FF1'; sk = 'none'; bk = '#002FF1'; } else if (st === 'resale') { f = '#A3A9FF'; sk = '#571CC4'; bk = '#571CC4'; } else if (st === 'taken') { f = '#D6D9EE'; sk = 'none'; bk = '#D6D9EE'; } else { f = '#FFFFFF'; sk = D.colour[D.blocks[id].colour].hex; bk = sk; }
@@ -160,6 +161,7 @@
         g += st === 'taken' && !mine ? '<g aria-hidden="true">' : '<g class="seat" data-seat="' + s + '" role="button" tabindex="0" aria-pressed="' + mine + '" aria-label="' + lab + '">';
         g += '<rect x="' + (x - 1) + '" y="' + (y - 1) + '" width="14" height="16" fill="transparent"/><rect x="' + x + '" y="' + y + '" width="12" height="10" rx="3" fill="' + f + '" stroke="' + sk + '" stroke-width="1.3"/><rect x="' + (x + 1) + '" y="' + (y + 11.5) + '" width="10" height="2" rx="1" fill="' + bk + '"/></g>';
       }
+      g += '</g>';
     });
     return { svg: g, h: H };
   }
@@ -220,10 +222,12 @@
   }
 
   function qrSvg(seed, dark, light) {
-    var s = seed, out = '<rect width="25" height="25" fill="' + light + '"/>';
+    var s = seed, T = {}, out = '<rect width="25" height="25" fill="' + light + '"/>';
     function rnd() { s = (s * 9301 + 49297) % 233280; return s / 233280; }
-    for (var y = 0; y < 25; y++) for (var x = 0; x < 25; x++) { var inF = (x < 8 && y < 8) || (x > 16 && y < 8) || (x < 8 && y > 16); if (!inF && rnd() > 0.52) out += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + dark + '"/>'; }
-    [[0, 0], [18, 0], [0, 18]].forEach(function (p) { out += '<rect x="' + p[0] + '" y="' + p[1] + '" width="7" height="7" fill="' + dark + '"/><rect x="' + (p[0] + 1) + '" y="' + (p[1] + 1) + '" width="5" height="5" fill="' + light + '"/><rect x="' + (p[0] + 2) + '" y="' + (p[1] + 2) + '" width="3" height="3" fill="' + dark + '"/>'; });
+    function put(k, x, y, w, f) { (T[k] = T[k] || []).push('<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + w + '" fill="' + f + '"/>'); }
+    for (var y = 0; y < 25; y++) for (var x = 0; x < 25; x++) { var inF = (x < 8 && y < 8) || (x > 16 && y < 8) || (x < 8 && y > 16); if (!inF && rnd() > 0.52) put(Math.floor(x / 5) + ',' + Math.floor(y / 5), x, y, 1, dark); }
+    [[0, 0], [18, 0], [0, 18]].forEach(function (p) { var k = Math.floor(p[0] / 5) + ',' + Math.floor(p[1] / 5); put(k, p[0], p[1], 7, dark); put(k, p[0] + 1, p[1] + 1, 5, light); put(k, p[0] + 2, p[1] + 2, 3, dark); });
+    Object.keys(T).forEach(function (k) { out += '<g class="qt" data-t="' + k + '">' + T[k].join('') + '</g>'; });
     return out;
   }
   function statusText(t) {
@@ -281,11 +285,13 @@
       '<div class="dock dock--flat"><button type="button" class="cta" data-a="send"' + (S.sendTo ? '' : ' aria-disabled="true"') + '><span>' + (S.sendTo ? 'Send seat ' + t.seat + ' to ' + D.contacts.filter(function (x) { return x.id === S.sendTo; })[0].short : 'Pick who to send it to') + '</span><span class="ar">' + ic('arrow-right') + '</span></button></div>';
     return '<h2 class="h20 mt18">Send seat ' + t.seat + '</h2><p class="t12 pm mt3">Free, to someone coming with you or in your place</p>' + body;
   }
+  var sheetShown = false;
   function renderSheet() {
-    if (!S.sheet || S.screen !== 'ticket') { sheetEl.hidden = true; sheetEl.innerHTML = ''; return; }
-    var t = S.tickets[S.cur];
+    if (!S.sheet || S.screen !== 'ticket') { sheetEl.hidden = true; sheetEl.innerHTML = ''; sheetShown = false; return; }
+    var t = S.tickets[S.cur], enter = sheetShown ? '' : ' enter';
+    sheetShown = true;
     sheetEl.hidden = false;
-    sheetEl.innerHTML = '<button type="button" class="scrim" data-a="close-sheet" aria-label="Close"></button><div class="sheet sheet--float" role="dialog" aria-modal="true" aria-label="' + (S.sheet === 'sell' ? 'Sell' : 'Send') + ' seat ' + t.seat + '"><div class="hd"></div>' +
+    sheetEl.innerHTML = '<button type="button" class="scrim' + enter + '" data-a="close-sheet" aria-label="Close"></button><div class="sheet sheet--float' + enter + '" role="dialog" aria-modal="true" aria-label="' + (S.sheet === 'sell' ? 'Sell' : 'Send') + ' seat ' + t.seat + '"><div class="hd"></div>' +
       '<div class="seg" role="tablist"><button type="button" role="tab" aria-selected="' + (S.sheet === 'sell') + '" data-a="sheet" data-s="sell">Sell</button><button type="button" role="tab" aria-selected="' + (S.sheet === 'send') + '" data-a="sheet" data-s="send">Send</button></div>' +
       (S.sheet === 'sell' ? sellSheet(t) : sendSheet(t)) + '</div>';
   }
@@ -309,24 +315,200 @@
       '<div class="demo__group"><h3>Rules this concept sets</h3><ul class="demo__ideas"><li>Resale only in the app, at face value or less, with no seller fee.</li><li>Sending is free, once per ticket, until gates open.</li><li>No refunds, so resale is the way back.</li><li>The code changes every 20 seconds, so copies don\'t scan.</li></ul></div>';
   }
 
-  /* ---------- render ---------- */
-  function render(keepScroll) {
-    var prev = screenEl.querySelector('.scr'), top = keepScroll && prev ? prev.scrollTop : 0;
-    var html = S.view === 'steward' ? steward() : { home: home, queue: queue, event: event, seats: seats, pay: pay, payfail: payfail, ticket: ticket }[S.screen]();
-    screenEl.innerHTML = html;
-    var scr = screenEl.querySelector('.scr'); if (scr) scr.scrollTop = top;
+  /* ---------- motion: the same transitions as the Lottie, with the Web Animations API ---------- */
+  var RM = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var CAM = 'cubic-bezier(.45,0,.15,1)', POP = 'cubic-bezier(.25,0,.25,1.18)', SHEET = 'cubic-bezier(.25,0,.25,1.07)', SOFT = 'cubic-bezier(.35,0,.15,1)', IN = 'cubic-bezier(.55,0,.85,.6)';
+  function still() { return RM.matches || !Element.prototype.animate; }
+  function mv(el, kf, o) {
+    if (!el || still()) return Promise.resolve();
+    return el.animate(kf, Object.assign({ fill: 'backwards', easing: SOFT, duration: 300 }, o)).finished.then(function () {}, function () {});
+  }
+  function rise(el, d, o) { return mv(el, [{ opacity: 0, transform: 'translateY(' + d + 'px)' }, { opacity: 1, transform: 'none' }], o); }
+  function fadeIn(el, o) { return mv(el, [{ opacity: 0.001 }, { opacity: 1 }], o); }  // not 0: the browser still paints it during the delay
+  function stagger(list, fn, start, step, max) { return Promise.all([].slice.call(list, 0, max || 12).map(function (el, i) { return fn(el, start + i * step); })); }
+  function zoomK() { var a = screenEl.getBoundingClientRect(); return a.width ? screenEl.offsetWidth / a.width : 1; }
+  function rel(el) { var a = screenEl.getBoundingClientRect(), r = el.getBoundingClientRect(), k = zoomK(); return { x: (r.left - a.left) * k, y: (r.top - a.top) * k, w: r.width * k, h: r.height * k }; }
+  function box(r) { return { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' }; }
+  function layer(cls, r, css) { var d = document.createElement('div'), st = Object.assign(box(r), css || {}); d.className = 'tx ' + cls; for (var k in st) d.style[k] = st[k]; return d; }
+  function cur() { var all = screenEl.querySelectorAll('.scr'); return all[all.length - 1] || null; }
+  function byId(id) { var c = cur(); return c ? c.querySelector('#' + id) : null; }
+  function buildQr(tiles, delay, step) {
+    return Promise.all([].map.call(tiles, function (g) {
+      var t = g.getAttribute('data-t').split(',');
+      return mv(g, [{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: delay + (+t[0] + +t[1]) * (step || 30), easing: POP });
+    }));
+  }
+  function shine(tk, delay) {
+    if (!tk || still()) return Promise.resolve();
+    var s = document.createElement('span'); s.className = 'shine'; tk.appendChild(s);
+    return mv(s, [{ transform: 'translateX(-160px) skewX(-18deg)' }, { transform: 'translateX(420px) skewX(-18deg)' }], { duration: 760, delay: delay, fill: 'both' })
+      .then(function () { if (s.parentNode) s.parentNode.removeChild(s); });
+  }
+  function sheetIn(neu, d) {
+    return Promise.all([
+      mv(neu.querySelector('.scr > .sheet'), [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: 580, delay: d, easing: SHEET }),
+      stagger(neu.querySelectorAll('.list > *, .li-list > li'), function (el, t) { return rise(el, 26, { duration: 340, delay: t }); }, d + 170, 45, 7)
+    ]);
+  }
+  function introHome(neu, d) {
+    return Promise.all([
+      rise(neu.querySelector('.hero'), 44, { duration: 480, delay: d }),
+      mv(neu.querySelector('.feature'), [{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: d + 100, easing: POP }),
+      stagger(neu.querySelectorAll('.search, .chips, .sec, .soon'), function (el, t) { return rise(el, 16, { duration: 340, delay: t }); }, d + 160, 50, 4)
+    ]);
+  }
+  var MOTION = {
+    fade: function (old, neu) { return fadeIn(neu, { duration: 220 }); },
+    // Home -> arena or queue: the featured card grows to fill the screen, then the next screen comes up over it
+    expand: function (old, neu, ctx, extras) {
+      var r = ctx.card; if (!r) return MOTION.fade(old, neu);
+      var ov = layer('tx-card', r, { borderRadius: '28px' }), full = { x: 0, y: 0, w: screenEl.offsetWidth, h: screenEl.offsetHeight };
+      screenEl.insertBefore(ov, neu); extras.push(ov);
+      mv(old.querySelector('.feature'), [{ opacity: 1 }, { opacity: 0 }], { duration: 80, fill: 'forwards' });
+      return Promise.all([
+        mv(ov, [Object.assign(box(r), { borderRadius: '28px' }), Object.assign(box(full), { borderRadius: '0px' })], { duration: 460, easing: CAM, fill: 'forwards' }),
+        fadeIn(neu, { duration: 240, delay: 300 }),
+        mv(neu.querySelector('.map, .q-num'), [{ opacity: 0, transform: 'scale(1.06)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 320, easing: CAM }),
+        sheetIn(neu, 380)
+      ]);
+    },
+    sheetup: function (old, neu) { return Promise.all([fadeIn(neu, { duration: 240 }), sheetIn(neu, 60)]); },
+    // Arena -> seats: the view of the block opens up, the sheet pushes up and the rows come in one by one
+    push: function (old, neu) {
+      return Promise.all([
+        fadeIn(neu, { duration: 200 }),
+        mv(neu.querySelector('.view'), [{ opacity: 0, transform: 'scale(.86)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: 40, easing: CAM }),
+        mv(neu.querySelector('.scr > .sheet'), [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: 580, delay: 90, easing: SHEET }),
+        stagger(neu.querySelectorAll('#grid .sg-row'), function (el, t) { return mv(el, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: t }); }, 300, 34, 12)
+      ]);
+    },
+    // Seats -> pay: the Pay pill stretches into the M-Pesa card
+    morph: function (old, neu, ctx, extras) {
+      var ink = neu.querySelector('.ink'); if (!ctx.cta || !ink) return MOTION.fade(old, neu);
+      var to = rel(ink), ov = layer('tx-pill', ctx.cta, { borderRadius: '28px', background: '#002FF1' });
+      screenEl.appendChild(ov); extras.push(ov);
+      return Promise.all([
+        fadeIn(neu, { duration: 320, delay: 40 }),
+        mv(ov, [Object.assign(box(ctx.cta), { background: '#002FF1' }), Object.assign(box(to), { background: '#14122B' })], { duration: 540, easing: CAM, fill: 'forwards' }),
+        fadeIn(ink, { duration: 240, delay: 470 }),
+        mv(ov, [{ opacity: 1 }, { opacity: 0 }], { duration: 180, delay: 580, fill: 'forwards' })
+      ]);
+    },
+    // Into the ticket: an ink panel rises, the ticket drops in, the code builds tile by tile
+    rise: function (old, neu, ctx, extras) {
+      var panel = layer('tx-panel', { x: 0, y: 0, w: screenEl.offsetWidth, h: screenEl.offsetHeight }, { background: '#0B0A14', borderRadius: '44px 44px 0 0' });
+      screenEl.insertBefore(panel, neu); extras.push(panel);
+      var tk = neu.querySelector('.tk');
+      return Promise.all([
+        mv(panel, [{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 520, easing: CAM, fill: 'forwards' }),
+        fadeIn(neu, { duration: 200, delay: 420 }),
+        rise(neu.querySelector('.pad > .t40'), 40, { duration: 440, delay: 460 }),
+        rise(neu.querySelector('.pad > .t40 + .t13'), 30, { duration: 440, delay: 500 }),
+        fadeIn(neu.querySelector('.tabs'), { duration: 300, delay: 540 }),
+        mv(tk, [{ opacity: 0, transform: 'translateY(-90px) scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 660, delay: 540, easing: POP }),
+        buildQr(neu.querySelectorAll('#qr .qt'), 1040),
+        shine(tk, 1200),
+        stagger(neu.querySelectorAll('.tk ~ .row, .seatlist li'), function (el, t) { return rise(el, 20, { duration: 320, delay: t }); }, 720, 50, 8)
+      ]);
+    },
+    // Back to Home: the screen you were on eases away and Home settles in
+    home: function (old, neu) {
+      return Promise.all([
+        mv(old, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.95)' }], { duration: 380, fill: 'forwards' }),
+        fadeIn(neu, { duration: 300, delay: 120 }),
+        introHome(neu, 200)
+      ]);
+    }
+  };
+  function kindOf(from, to) {
+    if (from === to) return 'fade';
+    if (from === 'home' && (to === 'event' || to === 'queue')) return 'expand';
+    if (to === 'home') return 'home';
+    if (to === 'ticket') return 'rise';
+    if (from === 'queue' && to === 'event') return 'sheetup';
+    if (from === 'event' && to === 'seats') return 'push';
+    if (from === 'seats' && to === 'pay') return 'morph';
+    return 'fade';
+  }
+  var TX = null;
+  function finishTx() { if (TX) { var t = TX; TX = null; t(); } }
+  function screenHtml() { return S.view === 'steward' ? steward() : { home: home, queue: queue, event: event, seats: seats, pay: pay, payfail: payfail, ticket: ticket }[S.screen](); }
+  function chrome() {
     renderSheet();
     demoEl.innerHTML = demo();
     document.querySelectorAll('[data-view]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-view') === S.view)); });
   }
-  function go(to) { hideToast(); S.screen = to; S.sheet = null; render(false); }
+  // Change screens: the old screen stays underneath while the new one comes in on top, then it is removed.
+  function swap(kind, mutate) {
+    finishTx();
+    var old = cur(), f = old && old.querySelector('.feature'), c = old && old.querySelector('.dock .cta');
+    var ctx = { card: f ? rel(f) : null, cta: c ? rel(c) : null };
+    hideToast(); mutate();
+    if (!old || still()) { render(false); return; }
+    var holder = document.createElement('div'); holder.innerHTML = screenHtml();
+    var neu = holder.firstElementChild;
+    if (!neu) { render(false); return; }
+    screenEl.appendChild(neu); chrome();
+    old.setAttribute('aria-hidden', 'true'); old.inert = true; old.style.pointerEvents = 'none';
+    var extras = [], cleanup = function () {
+      [old].concat(extras).forEach(function (e) { if (e.parentNode) e.parentNode.removeChild(e); });
+    };
+    TX = cleanup;
+    (MOTION[kind] || MOTION.fade)(old, neu, ctx, extras).then(function () { if (TX === cleanup) { TX = null; cleanup(); } });
+  }
+
+  /* ---------- render ---------- */
+  function render(keepScroll) {
+    finishTx();
+    var prev = cur(), top = keepScroll && prev ? prev.scrollTop : 0;
+    screenEl.innerHTML = screenHtml();
+    var scr = cur(); if (scr) scr.scrollTop = top;
+    chrome();
+  }
+  function go(to) { var from = S.screen; swap(S.view === 'steward' ? 'fade' : kindOf(from, to), function () { S.screen = to; S.sheet = null; }); }
   function hideToast() { clearTimeout(toastTimer); toastEl.classList.remove('show'); }
   function toast(msg) {
-    toastEl.textContent = msg; toastEl.classList.add('show');
+    toastEl.textContent = msg; toastEl.classList.toggle('toast--dark', !!S.sheet || S.screen === 'pay' || S.screen === 'payfail');
+    toastEl.classList.add('show');
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 3200);
   }
+  // Close the sell/send sheet with a slide down before the state changes underneath it
+  var closing = false;
+  function closeSheet(then) {
+    var sh = sheetEl.querySelector('.sheet--float'), sc = sheetEl.querySelector('.scrim');
+    if (closing) return;
+    if (!sh || still()) { then(); return; }
+    closing = true;
+    Promise.all([
+      mv(sh, [{ transform: 'none' }, { transform: 'translateY(105%)' }], { duration: 260, easing: IN, fill: 'forwards' }),
+      mv(sc, [{ opacity: 1 }, { opacity: 0 }], { duration: 240, fill: 'forwards' })
+    ]).then(function () { closing = false; then(); });
+  }
+  function nudge(el, msg) {
+    mv(el.closest('.price') || el, [{ transform: 'none' }, { transform: 'translateX(-10px)' }, { transform: 'translateX(9px)' }, { transform: 'translateX(-7px)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(-2px)' }, { transform: 'none' }], { duration: 420, easing: 'linear' });
+    toast(msg);
+  }
+  function countUp(el, from, to) {
+    if (!el || from === to || still()) return;
+    var t0 = performance.now();
+    (function step(t) {
+      var u = Math.min(1, (t - t0) / 380), e = 1 - Math.pow(1 - u, 3);
+      el.textContent = ksh(Math.round((from + (to - from) * e) / 10) * 10);
+      if (u < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+  function pulseSeat(id, delay) {
+    var grid = byId('grid'), g = grid && grid.querySelector('[data-seat="' + id + '"]'), r = g && g.querySelectorAll('rect')[1];
+    if (!r || still()) return;
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', +r.getAttribute('x') + 6); c.setAttribute('cy', +r.getAttribute('y') + 5); c.setAttribute('r', 8);
+    c.setAttribute('class', 'pulse'); grid.appendChild(c);
+    mv(r, [{ transform: 'scale(.5)' }, { transform: 'none' }], { duration: 340, delay: delay || 0, easing: POP });
+    mv(c, [{ opacity: 1, transform: 'scale(.6)' }, { opacity: 0, transform: 'scale(2.3)' }], { duration: 520, delay: delay || 0, fill: 'both' })
+      .then(function () { if (c.parentNode) c.parentNode.removeChild(c); });
+  }
   function scrollRowIntoView(id) {
-    var scr = screenEl.querySelector('.scr'), row = document.getElementById('row-' + id);
+    var scr = cur(), row = scr && scr.querySelector('#row-' + id);
     if (!scr || !row) return;
     var r = row.getBoundingClientRect(), c = scr.getBoundingClientRect(), z = parseFloat(getComputedStyle(device).zoom) || 1;
     if (r.top < c.top + 60 || r.bottom > c.bottom - 90) scr.scrollTop += (r.top - c.top) / (z === 1 ? 1 : 1) - 220;
@@ -339,22 +521,34 @@
       S.block = id === 'Y3' ? 'Y2' : Object.keys(D.blocks).filter(function (x) { return left(x) > 0 && D.blocks[x].side === D.blocks[id].side; })[0] || S.block;
     } else { S.soldTapped = null; S.block = id; }
     S.picked = [];
+    var before = {}, had = !!(cur() && cur().querySelector('.dock .cta:not([aria-disabled])'));
+    if (cur()) cur().querySelectorAll('.list > [id^="row-"]').forEach(function (r) { before[r.id] = r.getBoundingClientRect().top; });
     render(true);
     if (fromMap) scrollRowIntoView(S.block);
+    var k = zoomK();
+    cur().querySelectorAll('.list > [id^="row-"]').forEach(function (r) {
+      var dy = before[r.id] === undefined ? null : (before[r.id] - r.getBoundingClientRect().top) * k, on = r.classList.contains('on');
+      if (dy === null) rise(r, 20, { duration: 300 });
+      else if (Math.abs(dy) > 1 || on) mv(r, [{ transform: 'translateY(' + dy + 'px)' + (on ? ' scale(.95)' : '') }, { transform: 'none' }], { duration: on ? 460 : 380, easing: on ? POP : CAM });
+    });
+    if (!had) mv(cur().querySelector('.dock .cta'), [{ transform: 'scale(.94)' }, { transform: 'none' }], { duration: 380, easing: POP });
   }
   function toggleSeat(s) {
-    var i = S.picked.indexOf(s);
+    var i = S.picked.indexOf(s), price = D.blocks[S.block].price, was = S.picked.length;
     if (i >= 0) S.picked.splice(i, 1);
     else { if (S.picked.length >= S.qty) S.picked.shift(); S.picked.push(s); }
     render(true);
-    var el = screenEl.querySelector('[data-seat="' + s + '"]'); if (el) el.focus();
+    if (i < 0) pulseSeat(s);
+    countUp(cur().querySelector('.sum .ledger'), was * price, S.picked.length * price);
+    mv(cur().querySelector('.view svg'), [{ opacity: .35 }, { opacity: 1 }], { duration: 320 });
+    var el = cur().querySelector('[data-seat="' + s + '"]'); if (el) el.focus();
   }
   function startQueue() {
     S.ahead = D.queue.ahead; go('queue');
     clearInterval(qTimer);
     qTimer = setInterval(function () {
       S.ahead = Math.max(0, S.ahead - Math.round(60 + Math.random() * 90));
-      var a = document.getElementById('q-ahead'), b = document.getElementById('q-bar'), m = document.getElementById('q-min');
+      var a = byId('q-ahead'), b = byId('q-bar'), m = byId('q-min');
       if (a) a.textContent = S.ahead.toLocaleString('en-US');
       if (b) b.style.width = Math.round((1 - S.ahead / D.queue.ahead) * 100) + '%';
       if (m) m.textContent = Math.max(1, Math.ceil(S.ahead / 560)) + ' min';
@@ -382,31 +576,80 @@
     'f-under': function () { S.fUnder = !S.fUnder; render(true); },
     'waitlist': function () { S.waitlist = !S.waitlist; render(true); toast(S.waitlist ? 'You\'re on the ' + (S.soldTapped || 'Y3') + ' waitlist. Resale seats go to it in order.' : 'You left the waitlist.'); },
     'go-seats': function () { if (!S.block) { toast('Tap a block on the map or in the list first.'); return; } S.picked = []; S.hold = HOLD; go('seats'); },
-    'best': function () { var r = runs(S.block, S.qty)[0]; if (!r) { toast('No ' + S.qty + ' seats together in ' + bname(S.block) + '. Try fewer, or another block.'); return; } S.picked = r.seats.slice(); render(true); },
+    'best': function () {
+      var r = runs(S.block, S.qty)[0], was = S.picked.length * D.blocks[S.block].price;
+      if (!r) { toast('No ' + S.qty + ' seats together in ' + bname(S.block) + '. Try fewer, or another block.'); return; }
+      S.picked = r.seats.slice(); render(true);
+      S.picked.forEach(function (id, n) { pulseSeat(id, n * 90); });
+      countUp(cur().querySelector('.sum .ledger'), was, S.picked.length * D.blocks[S.block].price);
+    },
     'qty': function (el) { S.qty = Math.min(4, Math.max(1, S.qty + (+el.dataset.d))); while (S.picked.length > S.qty) S.picked.shift(); render(true); if (+el.dataset.d > 0 && S.qty === 4) toast('Up to 4 tickets per phone number.'); },
     'pay': function () { if (S.picked.length !== S.qty) { toast('Pick ' + S.qty + ' seat' + (S.qty > 1 ? 's' : '') + ' first.'); return; } S.resend = 24; go('pay'); },
     'resend': function () { S.resend = 24; go('pay'); toast('New prompt sent to ' + D.phone + '.'); },
     'approve': function () { if (S.screen === 'pay') makeTickets(); },
     'timeout': function () { if (S.screen === 'pay') go('payfail'); },
-    'cur': function (el) { S.cur = +el.dataset.i; S.qrIn = 20; render(false); },
-    'sheet': function (el) { hideToast(); S.sheet = el.dataset.s; if (S.sheet === 'sell') S.sellPrice = Math.min(S.sellPrice, D.blocks[S.tickets[S.cur].block].price); render(true); var f = sheetEl.querySelector('[aria-selected="true"]'); if (f) f.focus(); },
-    'close-sheet': function () { S.sheet = null; render(true); },
-    'price': function (el) { var face = D.blocks[S.tickets[S.cur].block].price, p = S.sellPrice + (+el.dataset.d); if (p > face) { toast('That\'s the most you can ask: what you paid.'); return; } S.sellPrice = Math.max(100, p); render(true); },
-    'list': function () { var t = S.tickets[S.cur]; t.status = 'listed'; t.price = S.sellPrice; S.sheet = null; render(true); toast('Seat ' + t.seat + ' is listed for ' + ksh(t.price) + '.'); },
-    'unlist': function () { var t = S.tickets[S.cur]; t.status = 'mine'; S.sheet = null; render(true); toast('Listing taken down. Seat ' + t.seat + ' is yours again.'); },
-    'to': function (el) { S.sendTo = el.dataset.id; render(true); },
-    'send': function () { if (!S.sendTo) return; var t = S.tickets[S.cur], c = D.contacts.filter(function (x) { return x.id === S.sendTo; })[0]; t.status = 'sent'; t.to = S.sendTo; t.sentOnce = true; S.sheet = null; S.sendTo = null; render(true); toast('Sent to ' + c.name + '. They\'ll get an SMS link.'); },
-    'buyer': function () { var t = S.tickets.filter(function (x) { return x.status === 'listed'; })[0]; if (!t) return; t.status = 'sold'; if (S.screen === 'ticket') render(true); else render(true); toast('Seat ' + t.seat + ' sold. ' + ksh(t.price) + ' sent to ' + D.phone + '.'); },
-    'accept': function () { var t = S.tickets.filter(function (x) { return x.status === 'sent'; })[0]; if (!t) return; t.status = 'accepted'; render(true); toast(D.contacts.filter(function (c) { return c.id === t.to; })[0].short + ' accepted seat ' + t.seat + '. Your code for it no longer works.'); },
+    'cur': function (el) {
+      var d = +el.dataset.i > S.cur ? 1 : -1; S.cur = +el.dataset.i; S.qrIn = 20; render(false);
+      mv(cur().querySelector('.tk'), [{ opacity: 0, transform: 'translateX(' + (24 * d) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: CAM });
+      buildQr(cur().querySelectorAll('#qr .qt'), 80, 14);
+    },
+    'sheet': function (el) {
+      var switching = !!S.sheet && S.sheet !== el.dataset.s;
+      hideToast(); S.sheet = el.dataset.s; if (S.sheet === 'sell') S.sellPrice = Math.min(S.sellPrice, D.blocks[S.tickets[S.cur].block].price); render(true);
+      if (switching) stagger(sheetEl.querySelectorAll('.sheet--float > :nth-child(n+3)'), function (e, t) { return rise(e, 12, { duration: 260, delay: t }); }, 0, 30, 8);
+      var f = sheetEl.querySelector('[aria-selected="true"]'); if (f) f.focus();
+    },
+    'close-sheet': function () { closeSheet(function () { S.sheet = null; render(true); }); },
+    'price': function (el) {
+      var face = D.blocks[S.tickets[S.cur].block].price, d = +el.dataset.d, p = S.sellPrice + d, was = S.sellPrice / face * 100;
+      if (p > face) { nudge(el, 'That\'s the most you can ask: what you paid.'); return; }
+      if (p < 100) { nudge(el, ksh(100) + ' is the lowest you can list it for.'); return; }
+      S.sellPrice = p; render(true);
+      var now = S.sellPrice / face * 100;
+      mv(sheetEl.querySelector('.slide__fill'), [{ width: was + '%' }, { width: now + '%' }], { duration: 240 });
+      mv(sheetEl.querySelector('.slide__knob'), [{ left: was + '%' }, { left: now + '%' }], { duration: 240 });
+      mv(sheetEl.querySelector('.price .ledger'), [{ opacity: 0, transform: 'translateY(' + (d > 0 ? 14 : -14) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 240, easing: CAM });
+    },
+    'list': function () { var t = S.tickets[S.cur]; closeSheet(function () { t.status = 'listed'; t.price = S.sellPrice; S.sheet = null; render(true); flashRow(t); toast('Seat ' + t.seat + ' is listed for ' + ksh(t.price) + '.'); }); },
+    'unlist': function () { var t = S.tickets[S.cur]; closeSheet(function () { t.status = 'mine'; S.sheet = null; render(true); flashRow(t); toast('Listing taken down. Seat ' + t.seat + ' is yours again.'); }); },
+    'to': function (el) { S.sendTo = el.dataset.id; render(true); mv(sheetEl.querySelector('.contact.on'), [{ transform: 'scale(.97)' }, { transform: 'none' }], { duration: 300, easing: POP }); },
+    'send': function () {
+      if (!S.sendTo) return;
+      var t = S.tickets[S.cur], c = D.contacts.filter(function (x) { return x.id === S.sendTo; })[0];
+      closeSheet(function () { t.status = 'sent'; t.to = S.sendTo; t.sentOnce = true; S.sheet = null; S.sendTo = null; render(true); flashRow(t); toast('Sent to ' + c.name + '. They\'ll get an SMS link.'); });
+    },
+    'buyer': function () {
+      var t = S.tickets.filter(function (x) { return x.status === 'listed'; })[0]; if (!t) return;
+      dissolve(t, function () { t.status = 'sold'; }, 'Seat ' + t.seat + ' sold. ' + ksh(t.price) + ' sent to ' + D.phone + '.');
+    },
+    'accept': function () {
+      var t = S.tickets.filter(function (x) { return x.status === 'sent'; })[0]; if (!t) return;
+      dissolve(t, function () { t.status = 'accepted'; }, D.contacts.filter(function (c) { return c.id === t.to; })[0].short + ' accepted seat ' + t.seat + '. Your code for it no longer works.');
+    },
     'jump': function (el) {
       var to = el.dataset.to;
       if (to === 'soldout') { S.view = 'fan'; S.soldTapped = 'Y3'; S.block = 'Y2'; S.picked = []; go('event'); scrollRowIntoView('Y2'); return; }
       if (to === 'ticket' && !S.tickets.length) { S.block = 'G2'; S.picked = ['C4', 'C5', 'C6']; S.qty = 3; makeTickets(); return; }
       S.view = 'fan'; go(to);
     },
-    'scan': function () { S.st.i = (S.st.i + 1) % D.steward.length; if (S.st.i === 0) { S.st.count++; if (S.st.offline) S.st.pending++; } render(false); },
-    'st': function (el) { S.st.i = +el.dataset.i; if (S.st.i === 0) { S.st.count++; if (S.st.offline) S.st.pending++; } render(false); }
+    'scan': function () { S.st.i = (S.st.i + 1) % D.steward.length; if (S.st.i === 0) { S.st.count++; if (S.st.offline) S.st.pending++; } render(false); scanIn(); },
+    'st': function (el) { S.st.i = +el.dataset.i; if (S.st.i === 0) { S.st.count++; if (S.st.offline) S.st.pending++; } render(false); scanIn(); }
   };
+  function flashRow(t) {
+    var li = cur() && cur().querySelectorAll('.seatlist li')[S.tickets.indexOf(t)];
+    mv(li, [{ background: '#2E2A4D' }, { background: '#16142A' }], { duration: 700 });
+  }
+  // A ticket leaves you: its code breaks into tiles that fly off, then the "no longer works" state comes in
+  function dissolve(t, apply, msg) {
+    var showing = S.screen === 'ticket' && S.tickets[S.cur] === t && !S.sheet, tiles = showing && cur() ? cur().querySelectorAll('#qr .qt') : [];
+    var after = function () { apply(); render(true); flashRow(t); if (showing) rise(cur().querySelector('.tk__gone'), 16, { duration: 360 }); toast(msg); };
+    if (!tiles.length || still()) { after(); return; }
+    Promise.all([].map.call(tiles, function (g) {
+      var p = g.getAttribute('data-t').split(','), dx = (+p[0] - 2) * 16 + (Math.random() * 10 - 5), dy = (+p[1] - 2) * 16 - 30 - Math.random() * 20;
+      return mv(g, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1.6) rotate(' + (Math.random() * 60 - 30) + 'deg)' }], { duration: 520, delay: (+p[0] + +p[1]) * 18, easing: IN, fill: 'forwards' });
+    })).then(after);
+  }
+  function scanIn() { var vf = cur() && cur().querySelector('.vf__qr'); mv(vf, [{ opacity: 0, transform: 'scale(.7)' }, { opacity: .3, transform: 'none' }], { duration: 320, easing: POP }); }
 
   document.addEventListener('click', function (e) {
     var seat = e.target.closest && e.target.closest('#grid [data-seat]');
@@ -414,11 +657,11 @@
     var blk = e.target.closest && e.target.closest('#map [data-block]');
     if (blk) { pickBlock(blk.getAttribute('data-block'), true); return; }
     var v = e.target.closest && e.target.closest('[data-view]');
-    if (v) { hideToast(); S.view = v.getAttribute('data-view'); S.sheet = null; render(false); return; }
+    if (v) { var to = v.getAttribute('data-view'); if (to !== S.view) swap('fade', function () { S.view = to; S.sheet = null; }); return; }
     if (e.target.closest && e.target.closest('[data-reset]')) { reset(); toast('Demo reset.'); return; }
     var el = e.target.closest && e.target.closest('[data-a]');
     if (!el || el.tagName === 'INPUT') return;
-    if (el.getAttribute('aria-disabled') === 'true') { if (el.dataset.a === 'go-seats' || el.dataset.a === 'pay' || el.dataset.a === 'send') ACT[el.dataset.a](el); return; }
+    if (el.getAttribute('aria-disabled') === 'true') { if (el.dataset.a === 'go-seats' || el.dataset.a === 'pay' || el.dataset.a === 'send' || el.dataset.a === 'price') ACT[el.dataset.a](el); return; }
     var f = ACT[el.dataset.a]; if (f) f(el);
   });
   document.addEventListener('change', function (e) {
@@ -429,20 +672,20 @@
   });
   document.addEventListener('keydown', function (e) {
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('#grid [data-seat]')) { e.preventDefault(); toggleSeat(e.target.getAttribute('data-seat')); }
-    if (e.key === 'Escape' && S.sheet) { S.sheet = null; render(true); }
+    if (e.key === 'Escape' && S.sheet) closeSheet(function () { S.sheet = null; render(true); });
   });
 
   /* ---------- clock ---------- */
   setInterval(function () {
     if (S.view !== 'fan') return;
     if (S.screen === 'seats' || S.screen === 'pay' || S.screen === 'payfail') {
-      S.hold--; var h = document.getElementById('hold'); if (h) h.textContent = mmss(S.hold);
+      S.hold--; var h = byId('hold'); if (h) h.textContent = mmss(S.hold);
       if (S.hold <= 0) { S.picked = []; S.hold = HOLD; go('event'); toast('Your 5 minutes ran out, so the seats went back. Pick again.'); return; }
     }
-    if (S.screen === 'pay' && S.resend > 0) { S.resend--; var r = document.getElementById('resend'); if (r) r.textContent = mmss(S.resend); if (S.resend === 0) render(true); }
+    if (S.screen === 'pay' && S.resend > 0) { S.resend--; var r = byId('resend'); if (r) r.textContent = mmss(S.resend); if (S.resend === 0 && !TX) render(true); }
     if (S.screen === 'ticket') {
-      S.qrIn--; if (S.qrIn <= 0) { S.qrIn = 20; S.qrSeed = (S.qrSeed * 7 + 3) % 9973; var q = document.getElementById('qr'); if (q) q.innerHTML = qrSvg(S.qrSeed + S.cur * 13, '#14122B', '#F3F4FF'); }
-      var qi = document.getElementById('qr-in'); if (qi) qi.textContent = S.qrIn;
+      S.qrIn--; if (S.qrIn <= 0) { S.qrIn = 20; S.qrSeed = (S.qrSeed * 7 + 3) % 9973; var q = byId('qr'); if (q) { q.innerHTML = qrSvg(S.qrSeed + S.cur * 13, '#14122B', '#F3F4FF'); buildQr(q.querySelectorAll('.qt'), 0, 22); } }
+      var qi = byId('qr-in'); if (qi) qi.textContent = S.qrIn;
     }
   }, 1000);
 
@@ -454,7 +697,13 @@
     var s = Math.min(1, Math.max(0.62, (window.innerHeight - bar - 48) / 804));
     device.style.setProperty('--s', s.toFixed(3));
   }
-  function reset() { hideToast(); clearInterval(qTimer); qTimer = null; cache = {}; buildSeats(); S = fresh(); render(false); }
+  function reset() {
+    hideToast(); clearInterval(qTimer); qTimer = null;
+    var fresh_ = function () { cache = {}; buildSeats(); S = fresh(); };
+    if (!S) { fresh_(); render(false); introHome(cur(), 120); return; }
+    var kind = S.view === 'fan' && S.screen === 'home' ? 'fade' : 'home';
+    closing = false; swap(kind, fresh_);
+  }
   window.addEventListener('resize', fit);
   reset(); fit();
 })();

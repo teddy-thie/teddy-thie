@@ -53,7 +53,7 @@
   var S, qTimer = null, toastTimer = null, cache = {};
   function fresh() {
     return {
-      view: 'fan', screen: 'home', sheet: null, busy: false, ahead: D.queue.ahead, th: -25 * Math.PI / 180,
+      view: 'fan', screen: 'home', sheet: null, busy: false, ahead: D.queue.ahead, th: -25 * Math.PI / 180, tilt: 1.0, dragged: false,
       block: null, soldTapped: null, waitlist: false, qty: 3, fTogether: false, fUnder: false,
       picked: [], hold: HOLD, resend: 24, tickets: [], cur: 0, sellPrice: 1000, sendTo: null, gatesOpen: false,
       qrIn: 20, qrSeed: 7, st: { i: 0, offline: false, count: 1128, pending: 214 }
@@ -101,11 +101,7 @@
   }
   function li(icn, text) { return '<li class="li"><span class="li__ic">' + ic(icn) + '</span><span>' + text + '</span></li>'; }
 
-  function mapSvg() {
-    var key = 'map|' + (S.block || '') + '|' + S.th.toFixed(3) + '|' + A.blocks.map(function (b) { return b.lf; }).join(',');
-    if (!cache[key]) cache[key] = A.overview(S.block, S.th, 268, 196, PD, 0);
-    return cache[key];
-  }
+  function mapSvg() { return A.orbit(S.block, S.th, S.tilt, 268, 196, PD); }
   function thumb(id) { var k = 'th|' + id; if (!cache[k]) cache[k] = A.blockView(id, 62, 44, PD); return cache[k]; }
 
   function listRows() {
@@ -132,8 +128,9 @@
     var b = S.block && D.blocks[S.block];
     return '<div class="scr dark">' + sb() +
       '<div class="hdr"><button type="button" class="cb" data-a="go" data-to="home" aria-label="Back">' + ic('arrow-left') + '</button><div class="hdr__t"><b>' + D.game.title + '</b><span>' + D.game.day + ' · ' + D.game.time + ' · indoor arena</span></div><button type="button" class="cb" data-a="toast" data-msg="Sharing isn\'t part of this demo." aria-label="Share">' + ic('share-2') + '</button></div>' +
-      '<div class="map"><svg viewBox="0 0 268 196" id="map" role="group" aria-label="Arena map. Tap a block, or use the list below.">' + mapSvg() + '</svg>' +
-      '<button type="button" class="cb cb--s map__rot" data-a="rotate" aria-label="Turn the arena">' + ic('rotate-clockwise-2') + '</button></div>' +
+      '<div class="map"><svg viewBox="0 0 268 196" id="map" tabindex="0" role="group" aria-label="Arena map. Drag to turn and tilt it, or use the arrow keys. Tap a block, or use the list below.">' + mapSvg() + '</svg>' +
+      (S.dragged ? '' : '<span class="map__hint" aria-hidden="true">' + ic('rotate-clockwise-2', 'i--s') + ' Drag to turn · tap a block</span>') +
+      '<button type="button" class="cb cb--s map__rot" data-a="rotate" aria-label="Turn the arena a quarter">' + ic('rotate-clockwise-2') + '</button></div>' +
       '<div class="sheet"><div class="hd"></div>' +
       (S.soldTapped ? '<div class="card alert">' + '<span class="alert__ic">' + ic('alert-circle') + '</span><span><span class="t14 em">' + S.soldTapped + ' sold out a moment ago</span><span class="t12 pm">' + S.block + ' next door: same price, almost the same view.</span></span></div>' : '') +
       '<div class="chips chips--sheet"><button type="button" class="chip on" data-a="qty-cycle">' + S.qty + ' ticket' + (S.qty > 1 ? 's' : '') + ' ' + ic('chevron-down', 'i--s') + '</button><button type="button" class="chip' + (S.fTogether ? ' on' : '') + '" data-a="f-together" aria-pressed="' + S.fTogether + '">Together</button><button type="button" class="chip' + (S.fUnder ? ' on' : '') + '" data-a="f-under" aria-pressed="' + S.fUnder + '">Under 1,500</button></div>' +
@@ -465,7 +462,7 @@
     var scr = cur(); if (scr) scr.scrollTop = top;
     chrome();
   }
-  function go(to) { var from = S.screen; swap(S.view === 'steward' ? 'fade' : kindOf(from, to), function () { S.screen = to; S.sheet = null; }); }
+  function go(to) { stopMotion(); var from = S.screen; swap(S.view === 'steward' ? 'fade' : kindOf(from, to), function () { S.screen = to; S.sheet = null; }); }
   function hideToast() { clearTimeout(toastTimer); toastEl.classList.remove('show'); }
   function toast(msg) {
     toastEl.textContent = msg; toastEl.classList.toggle('toast--dark', !!S.sheet || S.screen === 'pay' || S.screen === 'payfail');
@@ -532,6 +529,7 @@
       else if (Math.abs(dy) > 1 || on) mv(r, [{ transform: 'translateY(' + dy + 'px)' + (on ? ' scale(.95)' : '') }, { transform: 'none' }], { duration: on ? 460 : 380, easing: on ? POP : CAM });
     });
     if (!had) mv(cur().querySelector('.dock .cta'), [{ transform: 'scale(.94)' }, { transform: 'none' }], { duration: 380, easing: POP });
+    if (!fromMap) turnTo(FACE[D.blocks[S.block].side.charAt(0)], null, 700);
   }
   function toggleSeat(s) {
     var i = S.picked.indexOf(s), price = D.blocks[S.block].price, was = S.picked.length;
@@ -552,7 +550,7 @@
       if (a) a.textContent = S.ahead.toLocaleString('en-US');
       if (b) b.style.width = Math.round((1 - S.ahead / D.queue.ahead) * 100) + '%';
       if (m) m.textContent = Math.max(1, Math.ceil(S.ahead / 560)) + ' min';
-      if (S.ahead === 0) { clearInterval(qTimer); qTimer = null; if (S.screen === 'queue') { go('event'); toast('It\'s your turn. You have 5 minutes to pick seats.'); } }
+      if (S.ahead === 0) { clearInterval(qTimer); qTimer = null; if (S.screen === 'queue') { go('event'); toast('It\'s your turn. You have 5 minutes to pick seats.'); setTimeout(peek, 1100); } }
     }, 120);
   }
   function makeTickets() {
@@ -567,9 +565,9 @@
   var ACT = {
     'go': function (el) { if (el.dataset.to === 'event' && S.screen === 'seats') { S.picked = []; } go(el.dataset.to); },
     'toast': function (el) { toast(el.dataset.msg); },
-    'open-game': function () { if (S.busy) startQueue(); else go('event'); },
+    'open-game': function () { if (S.busy) startQueue(); else { go('event'); setTimeout(peek, 1250); } },
     'tickets': function () { if (S.tickets.length) go('ticket'); else toast('No tickets yet. Open the featured game to buy some.'); },
-    'rotate': function () { S.th += Math.PI / 4; render(true); },
+    'rotate': function () { turnTo(S.th + Math.PI / 2, null, 650); },
     'pick-block': function (el) { pickBlock(el.dataset.id, false); },
     'qty-cycle': function () { S.qty = S.qty % 4 + 1; render(true); },
     'f-together': function () { S.fTogether = !S.fTogether; render(true); },
@@ -651,7 +649,69 @@
   }
   function scanIn() { var vf = cur() && cur().querySelector('.vf__qr'); mv(vf, [{ opacity: 0, transform: 'scale(.7)' }, { opacity: .3, transform: 'none' }], { duration: 320, easing: POP }); }
 
+  /* ---------- the 3D map: drag to turn and tilt, flick to spin, tap to pick ---------- */
+  var FACE = { N: 0, S: Math.PI, W: Math.PI / 2, E: -Math.PI / 2 };   // camera angle that faces each stand
+  var drag = null, suppress = false, spinRaf = 0, turnRaf = 0, drawPending = false;
+  function clampTilt(v) { return Math.min(1.38, Math.max(0.5, v)); }
+  function drawMap() { var svg = byId('map'); if (svg) svg.innerHTML = mapSvg(); }
+  function drawSoon() { if (drawPending) return; drawPending = true; requestAnimationFrame(function () { drawPending = false; drawMap(); }); }
+  function stopMotion() { cancelAnimationFrame(spinRaf); cancelAnimationFrame(turnRaf); }
+  function turnTo(th, tilt, ms) {
+    stopMotion();
+    var th0 = S.th, ti0 = S.tilt, d = th - th0, t0 = performance.now(), dur = still() ? 0 : (ms || 600);
+    d = ((d + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;              // the short way round
+    if (Math.abs(d) < 0.01 && tilt == null) return;
+    (function step(t) {
+      var u = dur ? Math.min(1, (t - t0) / dur) : 1, e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+      S.th = th0 + d * e; if (tilt != null) S.tilt = ti0 + (tilt - ti0) * e; drawMap();
+      if (u < 1) turnRaf = requestAnimationFrame(step);
+    })(t0);
+  }
+  function peek() {                                   // first visit: the arena turns a little on its own, so it reads as 3D
+    if (S.dragged || S.screen !== 'event' || still()) return;
+    stopMotion();
+    var th0 = S.th, t0 = performance.now();
+    (function step(t) {
+      var u = Math.min(1, (t - t0) / 1500); S.th = th0 + 0.42 * Math.sin(Math.PI * u) * (1 - u * 0.3); drawMap();
+      if (u < 1 && !drag && S.screen === 'event') turnRaf = requestAnimationFrame(step); else if (u >= 1) S.th = th0, drawMap();
+    })(t0);
+  }
+  function hideHint() { var h = cur() && cur().querySelector('.map__hint'); if (h) mv(h, [{ opacity: 1 }, { opacity: 0 }], { duration: 240, fill: 'forwards' }); }
+  document.addEventListener('mousedown', function (e) { if (e.target.closest && e.target.closest('#map')) e.preventDefault(); });   // a mouse drag shouldn't leave a focus ring; Tab still reaches the map
+  document.addEventListener('pointerdown', function (e) {
+    var svg = e.target.closest && e.target.closest('#map');
+    suppress = false;
+    if (!svg || e.button > 0) return;
+    stopMotion();
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, th: S.th, tilt: S.tilt, moved: false, k: zoomK(), lx: e.clientX, lt: performance.now(), v: 0, svg: svg };
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var dx = (e.clientX - drag.x) * drag.k, dy = (e.clientY - drag.y) * drag.k, now = performance.now();
+    if (!drag.moved && Math.sqrt(dx * dx + dy * dy) < 5) return;
+    if (!drag.moved) {
+      drag.moved = true; drag.svg.classList.add('grabbing');
+      try { drag.svg.setPointerCapture(e.pointerId); } catch (err) { /* not capturable: drag still works through window */ }
+      if (!S.dragged) { S.dragged = true; hideHint(); }
+    }
+    drag.v = -0.011 * (e.clientX - drag.lx) * drag.k / Math.max(8, now - drag.lt) * 16; drag.lx = e.clientX; drag.lt = now;
+    S.th = drag.th - dx * 0.011; S.tilt = clampTilt(drag.tilt + dy * 0.006);
+    drawSoon();
+  });
+  function endDrag(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var d = drag; drag = null; d.svg.classList.remove('grabbing');
+    if (!d.moved) return;
+    suppress = true;                                  // the click that follows a drag is not a tap on a block
+    var v = still() ? 0 : Math.max(-0.12, Math.min(0.12, d.v));
+    if (Math.abs(v) < 0.003) return;
+    (function spin() { v *= 0.93; S.th += v; drawMap(); if (Math.abs(v) > 0.0015) spinRaf = requestAnimationFrame(spin); })();
+  }
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+
   document.addEventListener('click', function (e) {
+    if (suppress && e.target.closest && e.target.closest('#map')) { suppress = false; return; }
     var seat = e.target.closest && e.target.closest('#grid [data-seat]');
     if (seat) { toggleSeat(seat.getAttribute('data-seat')); return; }
     var blk = e.target.closest && e.target.closest('#map [data-block]');
@@ -673,6 +733,13 @@
   document.addEventListener('keydown', function (e) {
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('#grid [data-seat]')) { e.preventDefault(); toggleSeat(e.target.getAttribute('data-seat')); }
     if (e.key === 'Escape' && S.sheet) closeSheet(function () { S.sheet = null; render(true); });
+    if (e.target.id === 'map' && /^Arrow/.test(e.key)) {
+      e.preventDefault(); if (!S.dragged) { S.dragged = true; hideHint(); }
+      if (e.key === 'ArrowLeft') turnTo(S.th + Math.PI / 8, null, 280);
+      if (e.key === 'ArrowRight') turnTo(S.th - Math.PI / 8, null, 280);
+      if (e.key === 'ArrowUp') turnTo(S.th, clampTilt(S.tilt + 0.15), 220);
+      if (e.key === 'ArrowDown') turnTo(S.th, clampTilt(S.tilt - 0.15), 220);
+    }
   });
 
   /* ---------- clock ---------- */
